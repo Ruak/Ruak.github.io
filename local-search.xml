@@ -98,8 +98,6 @@
     
     <tags>
       
-      <tag>CVA6</tag>
-      
       <tag>Branch Prediction</tag>
       
       <tag>Attack Modeling</tag>
@@ -107,6 +105,8 @@
       <tag>Side-channel Attack</tag>
       
       <tag>Microarchitecture Security</tag>
+      
+      <tag>CVA6</tag>
       
     </tags>
     
