@@ -466,9 +466,9 @@ mjx-container[display="true"] + br {
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/Ubuntu/" class="print-no-link">#Ubuntu</a>
-      
         <a href="/tags/VMware/" class="print-no-link">#VMware</a>
+      
+        <a href="/tags/Ubuntu/" class="print-no-link">#Ubuntu</a>
       
         <a href="/tags/VMware-tools/" class="print-no-link">#VMware tools</a>
       
@@ -549,6 +549,33 @@ mjx-container[display="true"] + br {
             </div>
 
             
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.8.0/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"Ov23liShVrg2q1cvgy8e","clientSecret":"c799aabf17670a714bab29a1ec1fde855622bcd6","repo":"Ruak/hexo-fluid-gitalk","owner":"Ruak","admin":["Ruak"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token"},
+          {
+            id: 'a2c99cb1ac3ff5db3b0e6d88c462db26'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
           </article>
         </div>
       </div>

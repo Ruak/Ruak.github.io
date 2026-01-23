@@ -48,13 +48,13 @@
     
     <categories>
       
-      <category>RISC-V</category>
-      
       <category>VMware</category>
       
-      <category>CVA6</category>
+      <category>RISC-V</category>
       
       <category>Ubuntu</category>
+      
+      <category>CVA6</category>
       
     </categories>
     
@@ -65,9 +65,9 @@
       
       <tag>CVA6</tag>
       
-      <tag>Simulation</tag>
-      
       <tag>Ubuntu</tag>
+      
+      <tag>Simulation</tag>
       
       <tag>Verilator</tag>
       
@@ -96,9 +96,9 @@
     
     <tags>
       
-      <tag>Ubuntu</tag>
-      
       <tag>VMware</tag>
+      
+      <tag>Ubuntu</tag>
       
       <tag>VMware tools</tag>
       
