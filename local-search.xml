@@ -157,13 +157,13 @@
     
     <categories>
       
-      <category>Microarchitecture Security</category>
-      
       <category>RISC-V</category>
       
-      <category>Branch Prediction</category>
+      <category>Microarchitecture Security</category>
       
       <category>CVA6</category>
+      
+      <category>Branch Prediction</category>
       
     </categories>
     
