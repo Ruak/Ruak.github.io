@@ -4,6 +4,37 @@
   
   
   <entry>
+    <title>VM-Ubuntu VMware-tools Install</title>
+    <link href="/2026/01/23/VM-Ubuntu-VMware-tools-Install/"/>
+    <url>/2026/01/23/VM-Ubuntu-VMware-tools-Install/</url>
+    
+    <content type="html"><![CDATA[<h1 id="VM-Ubuntu-VMware-tools-Install"><a href="#VM-Ubuntu-VMware-tools-Install" class="headerlink" title="VM-Ubuntu VMware-tools Install"></a>VM-Ubuntu VMware-tools Install</h1><p>本文仅笔者用于记录，更多问题解决方案可参考以下两篇内容</p><p><a href="https://blog.csdn.net/qq_74224788/article/details/156830331">VMware 17 下 Ubuntu 虚拟机与宿主机间复制粘贴失效问题</a></p><p><a href="https://zhuanlan.zhihu.com/p/718861067">Vmware 17 的 VMware tools安装</a></p><h2 id="Ubuntu-24-04"><a href="#Ubuntu-24-04" class="headerlink" title="Ubuntu 24.04"></a>Ubuntu 24.04</h2><p><strong>Ubuntu 20.04+ 推荐用开源 open-vm-tools</strong></p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 1. 更新软件源</span><br><span class="hljs-built_in">sudo</span> apt update &amp;&amp; <span class="hljs-built_in">sudo</span> apt upgrade -y<br> <br><span class="hljs-comment"># 2. 彻底清理旧版工具（避免冲突）</span><br><span class="hljs-built_in">sudo</span> apt autoremove --purge open-vm-tools open-vm-tools-desktop -y<br> <br><span class="hljs-comment"># 3. 安装桌面版必需组件（含剪贴板/拖放支持）</span><br><span class="hljs-built_in">sudo</span> apt install open-vm-tools open-vm-tools-desktop -y<br> <br><span class="hljs-comment"># 4. 重启服务并验证状态（显示 active 为正常）</span><br><span class="hljs-built_in">sudo</span> systemctl restart open-vm-tools<br><span class="hljs-built_in">sudo</span> systemctl status open-vm-tools<br> <br><span class="hljs-comment"># 5. 重启虚拟机使设置生效</span><br>reboot<br><br></code></pre></td></tr></table></figure>]]></content>
+    
+    
+    <categories>
+      
+      <category>VMware</category>
+      
+      <category>Ubuntu</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>VMware</tag>
+      
+      <tag>Ubuntu</tag>
+      
+      <tag>VMware tools</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>Hexo-Fluid 功能拓展--banner随机化显示</title>
     <link href="/2026/01/21/Hexo-Fluid-%E5%8A%9F%E8%83%BD%E6%8B%93%E5%B1%95-banner%E9%9A%8F%E6%9C%BA%E5%8C%96%E6%98%BE%E7%A4%BA/"/>
     <url>/2026/01/21/Hexo-Fluid-%E5%8A%9F%E8%83%BD%E6%8B%93%E5%B1%95-banner%E9%9A%8F%E6%9C%BA%E5%8C%96%E6%98%BE%E7%A4%BA/</url>
@@ -98,6 +129,8 @@
     
     <tags>
       
+      <tag>CVA6</tag>
+      
       <tag>Branch Prediction</tag>
       
       <tag>Attack Modeling</tag>
@@ -105,8 +138,6 @@
       <tag>Side-channel Attack</tag>
       
       <tag>Microarchitecture Security</tag>
-      
-      <tag>CVA6</tag>
       
     </tags>
     
