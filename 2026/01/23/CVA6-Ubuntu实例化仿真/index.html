@@ -1,0 +1,1133 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/milkcat.png">
+  <link rel="icon" href="/img/milkcat.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="HUANGDAN">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="CVA6 Ubuntu实例化仿真环境：Ubuntu24.04参考仓库：openhwgroup&#x2F;cva6内容参考：CVA6 Ubuntu Demo 构建CVA6 APU1.拉取仓库并初始化子模块当前目录~&#x2F; 12345678sudo apt install gitgit clone https:&#x2F;&#x2F;github.com&#x2F;openhwgroup&#x2F;cva6.gitcd cva6git submodule">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CVA6 Ubuntu实例化仿真">
+<meta property="og:url" content="http://ruak.github.io/2026/01/23/CVA6-Ubuntu%E5%AE%9E%E4%BE%8B%E5%8C%96%E4%BB%BF%E7%9C%9F/index.html">
+<meta property="og:site_name" content="HUANGDAN">
+<meta property="og:description" content="CVA6 Ubuntu实例化仿真环境：Ubuntu24.04参考仓库：openhwgroup&#x2F;cva6内容参考：CVA6 Ubuntu Demo 构建CVA6 APU1.拉取仓库并初始化子模块当前目录~&#x2F; 12345678sudo apt install gitgit clone https:&#x2F;&#x2F;github.com&#x2F;openhwgroup&#x2F;cva6.gitcd cva6git submodule">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-23T07:19:03.000Z">
+<meta property="article:modified_time" content="2026-01-23T08:43:39.358Z">
+<meta property="article:author" content="HUANGDAN">
+<meta property="article:tag" content="CVA6">
+<meta property="article:tag" content="RISC-V">
+<meta property="article:tag" content="Simulation">
+<meta property="article:tag" content="Ubuntu">
+<meta property="article:tag" content="Verilator">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>CVA6 Ubuntu实例化仿真 - HUANGDAN</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ruak.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":50,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>HUANGDAN</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true data-random-banner='/img/random/bochi.png,/img/random/ChainsawMan.png,/img/random/charlotte.png,/img/random/denmension.png,/img/random/future.png,/img/random/pink.png,/img/random/purple.png,/img/random/rose.png,/img/random/short.png,/img/random/SNAFFUR.png,/img/random/thick.png,/img/random/white.png'
+     style="background: url('/img/random/bochi.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CVA6 Ubuntu实例化仿真"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        HUANGDAN
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-01-23 15:19" pubdate>
+          2026年1月23日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          13 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+
+  <script>
+    (function() {
+      var banner = document.getElementById('banner');
+      if (!banner) return;
+      var list = banner.getAttribute('data-random-banner');
+      if (!list) return;
+      list = list.split(',').filter(Boolean);
+      if (list.length === 0) return;
+      var pick = list[Math.floor(Math.random() * list.length)];
+      banner.style.backgroundImage = "url('" + pick + "')";
+    })();
+  </script>
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">CVA6 Ubuntu实例化仿真</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="CVA6-Ubuntu实例化仿真"><a href="#CVA6-Ubuntu实例化仿真" class="headerlink" title="CVA6 Ubuntu实例化仿真"></a>CVA6 Ubuntu实例化仿真</h1><p>环境：Ubuntu24.04<br>参考仓库：<a target="_blank" rel="noopener" href="https://github.com/openhwgroup/cva6">openhwgroup/cva6</a><br>内容参考：<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=Ow8wksEAt1M">CVA6 Ubuntu Demo</a></p>
+<h2 id="构建CVA6-APU"><a href="#构建CVA6-APU" class="headerlink" title="构建CVA6 APU"></a>构建CVA6 APU</h2><h3 id="1-拉取仓库并初始化子模块"><a href="#1-拉取仓库并初始化子模块" class="headerlink" title="1.拉取仓库并初始化子模块"></a>1.拉取仓库并初始化子模块</h3><p>当前目录<code>~/</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt install git<br><br>git <span class="hljs-built_in">clone</span> https://github.com/openhwgroup/cva6.git<br><br><span class="hljs-built_in">cd</span> cva6<br><br>git submodule update --init --recursive<br><br></code></pre></td></tr></table></figure>
+<h3 id="2-GCC工具链构建"><a href="#2-GCC工具链构建" class="headerlink" title="2.GCC工具链构建"></a>2.GCC工具链构建</h3><p>当前目录<code>~/</code></p>
+<p>磁盘空间：构建和安装裸机工具链大约需要3.5 GB的磁盘空间源代码。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt-get install autoconf automake autotools-dev curl git libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool bc zlib1g-dev<br><br><br><span class="hljs-built_in">mkdir</span> cva6toolchain<br><br><span class="hljs-comment"># user 替换为你的用户名</span><br><span class="hljs-built_in">export</span> RISCV=/home/user/cva6toolchain<br><br>INSTALL_DIR=<span class="hljs-variable">$RISCV</span><br><br>bash get-toolchain.sh<br><br><span class="hljs-built_in">cd</span> ./cva6/util/toolchain-builder<br><br>bash get-toolchain.sh<br><br>bash build-toolchain.sh <span class="hljs-variable">$INSTALL_DIR</span><br></code></pre></td></tr></table></figure>
+<h3 id="3-配置相应环境"><a href="#3-配置相应环境" class="headerlink" title="3.配置相应环境"></a>3.配置相应环境</h3><p>当前目录<code>~/cva6/util/toolchain-builder</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt install cmake<br><br><span class="hljs-built_in">sudo</span> apt-get install help2man device-tree-compiler<br><br><span class="hljs-built_in">cd</span> ~/cva6<br><br><span class="hljs-comment"># 安装你的Ubuntu对应的python版本</span><br><span class="hljs-built_in">sudo</span> apt install python3.12-venv<br><br>python3 -m venv cva6<br><br><span class="hljs-built_in">source</span> ./cva6/bin/activate<br><br>pip3 install -r verif/sim/dv/requirements.txt<br><br></code></pre></td></tr></table></figure>
+<h3 id="4-验证CVA6仿真链路"><a href="#4-验证CVA6仿真链路" class="headerlink" title="4.验证CVA6仿真链路"></a>4.验证CVA6仿真链路</h3><p>当前目录<code>~/cva6</code></p>
+<p>使用<code>smoke-tests-*.sh</code>系列快速验证<strong>指令生成器（corev-dv）+ CVA6 仿真链路</strong>的可用性</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">export</span> DV_SIMULATORS=veri-testharness,spike<br><br><br>bash verif/regress/smoke-gen_tests.sh<br></code></pre></td></tr></table></figure>
+<h3 id="5-运行CVA6仿真"><a href="#5-运行CVA6仿真" class="headerlink" title="5.运行CVA6仿真"></a>5.运行CVA6仿真</h3><p>当前目录<code>~/cva6</code></p>
+<p>CVA6的模拟通过<code>verif/sim/cva6.py</code>使用</p>
+<p>环境变量<code>DV_SIMULATORS</code>允许你指定使用哪个模拟器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">source</span> verif/sim/setup-env.sh<br><br><span class="hljs-built_in">export</span> DV_SIMULATORS=veri-testharness<br><br><span class="hljs-built_in">cd</span> ./verif/sim<br><br>python3 cva6.py --target cv32a60x --iss=<span class="hljs-variable">$DV_SIMULATORS</span> --iss_yaml=cva6.yaml \<br>--c_tests ../tests/custom/hello_world/hello_world.c \<br>--linker=../../config/gen_from_riscv_config/linker/link.ld \<br>--gcc_opts=<span class="hljs-string">"-static -mcmodel=medany -fvisibility=hidden -nostdlib \</span><br><span class="hljs-string">-nostartfiles -g ../tests/custom/common/syscalls.c \</span><br><span class="hljs-string">../tests/custom/common/crt.S -lgcc \</span><br><span class="hljs-string">-I../tests/custom/env -I../tests/custom/common"</span><br></code></pre></td></tr></table></figure>
+<p>在这一步执行时发现，不明原因导致Verilator并没有安装在对应的目录下，导致报错。最简单的解决方案是构建一个<code>symbolic link</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">mv</span> ../../tools/verilator-v5.008/ verilator<br><br><span class="hljs-built_in">cd</span> ../../tools/<br><br><span class="hljs-built_in">ln</span> -s ./verilator-v5.008 ./verilator<br><br><span class="hljs-built_in">cd</span> ../verif/sim/<br><br>python3 cva6.py --target cv32a60x --iss=<span class="hljs-variable">$DV_SIMULATORS</span> --iss_yaml=cva6.yaml \<br>--c_tests ../tests/custom/hello_world/hello_world.c \<br>--linker=../../config/gen_from_riscv_config/linker/link.ld \<br>--gcc_opts=<span class="hljs-string">"-static -mcmodel=medany -fvisibility=hidden -nostdlib \</span><br><span class="hljs-string">-nostartfiles -g ../tests/custom/common/syscalls.c \</span><br><span class="hljs-string">../tests/custom/common/crt.S -lgcc \</span><br><span class="hljs-string">-I../tests/custom/env -I../tests/custom/common"</span><br><br></code></pre></td></tr></table></figure>
+<p>最后，在<code>cva6/verif/sim/out_data/veri-testharness_sim</code>目录下可以看到仿真输出的文件。</p>
+<h3 id="复盘"><a href="#复盘" class="headerlink" title="复盘"></a>复盘</h3><p><strong>问题：</strong></p>
+<ul>
+<li><p>从<code>log</code>来看，<code>verif/regress/smoke-gen_tests.sh</code>由<code>corev-dv</code>自动生成默认指定了目标架构为<code>cv32a65x</code>，该路径下还存在可指定架构的测试文件。</p>
+</li>
+<li><p>如果不使用<code>symbolic link</code>的方案，直接执行<code>install-verilator.sh</code>也可自动安装。但该方案暂时还未试验，有效性未知。</p>
+</li>
+<li><p>仿真输出的文件只有汇编/机器码和大量的警告，但日志文件中并没有看到 printf 语句被正确执行。</p>
+</li>
+</ul>
+<p>倘若希望执行程序还需要将汇编文件编译为目标文件，再链接为可执行文件。官方仓库似乎也给出了解决方案——<a target="_blank" rel="noopener" href="https://github.com/openhwgroup/cva6/blob/master/tutorials/running_sim.md">使用RISC-V代理内核进行模拟</a>，笔者暂时不确定这是否是同一个问题以及是否有效。</p>
+<p>下给出个人的一种方案：</p>
+<p>当前目录<code>~/cva6</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> verif/tests/custom/hello_world<br><br>riscv-none-elf-gcc -S hello_world.c<br><br>riscv-none-elf-gcc -o hello_world hello_world.o<br><br><span class="hljs-built_in">sudo</span> apt install qemu-user<br><br>qemu-riscv32 hello_world<br><br></code></pre></td></tr></table></figure>
+<p><strong>关于<code>verif/sim/cva6.py</code>模拟的使用</strong></p>
+<h4 id="一、基础配置类"><a href="#一、基础配置类" class="headerlink" title="一、基础配置类"></a>一、基础配置类</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>全称/简写</th>
+<th>核心作用</th>
+<th>示例/说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-h/--help</code></td>
+<td>帮助</td>
+<td>打印参数说明并退出</td>
+<td>无额外参数，仅查看帮助</td>
+</tr>
+<tr>
+<td><code>--target</code></td>
+<td>目标架构</td>
+<td>指定预定义的 RISC-V 架构目标</td>
+<td><code>--target rv32imc</code>（32位IMC架构）、<code>--target rv64gc</code>（64位GC架构）</td>
+</tr>
+<tr>
+<td><code>-o/--output</code></td>
+<td>输出目录</td>
+<td>指定测试产物的输出目录</td>
+<td><code>-o test_output</code>（结果放到<code>test_output</code>目录）</td>
+</tr>
+<tr>
+<td><code>-tl/--testlist</code></td>
+<td>测试列表</td>
+<td>指定回归测试的配置文件</td>
+<td><code>-tl cva6_base_testlist.yaml</code>（加载预定义测试列表）</td>
+</tr>
+<tr>
+<td><code>-tn/--test</code></td>
+<td>测试名称</td>
+<td>指定执行的单个测试/所有测试</td>
+<td><code>-tn riscv_load_store_test</code>、<code>-tn all</code></td>
+</tr>
+<tr>
+<td><code>-i/--iterations</code></td>
+<td>迭代次数</td>
+<td>覆盖测试列表的迭代次数</td>
+<td><code>-i 5</code>（每个测试执行5次，种子递增）</td>
+</tr>
+<tr>
+<td><code>-si/--simulator</code></td>
+<td>仿真器</td>
+<td>指定RTL仿真器（默认VCS）</td>
+<td><code>-si verilator</code>（用Verilator）、<code>-si vcs</code>（用VCS）</td>
+</tr>
+<tr>
+<td><code>--iss</code></td>
+<td>参考模拟器</td>
+<td>指定RISC-V指令集参考模拟器</td>
+<td><code>--iss spike</code>（用Spike对比）、<code>--iss ovpsim</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="二、测试生成-编译-仿真选项"><a href="#二、测试生成-编译-仿真选项" class="headerlink" title="二、测试生成/编译/仿真选项"></a>二、测试生成/编译/仿真选项</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>核心作用</th>
+<th>示例/说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--co</code></td>
+<td>仅编译，不运行仿真</td>
+<td>快速校验编译链路</td>
+</tr>
+<tr>
+<td><code>--cov</code></td>
+<td>使能功能覆盖率收集</td>
+<td>用于测试覆盖度分析</td>
+</tr>
+<tr>
+<td><code>--so</code></td>
+<td>仅仿真，跳过生成/编译</td>
+<td>复用已有编译文件，快速重跑</td>
+</tr>
+<tr>
+<td><code>--cmp_opts</code></td>
+<td>传递编译参数给测试生成器</td>
+<td><code>--cmp_opts "-O2"</code>（给GCC加O2优化）</td>
+</tr>
+<tr>
+<td><code>--sim_opts</code></td>
+<td>传递参数给RTL仿真器</td>
+<td><code>--sim_opts "+UVM_VERBOSITY=UVM_HIGH"</code>（提高日志等级）</td>
+</tr>
+<tr>
+<td><code>--gcc_opts</code></td>
+<td>传递参数给RISC-V GCC编译器</td>
+<td><code>--gcc_opts "-march=rv32imc -mabi=ilp32"</code></td>
+</tr>
+<tr>
+<td><code>-s/--steps</code></td>
+<td>指定仅执行部分测试步骤</td>
+<td><code>-s gen,gcc_compile</code>（仅生成+编译）</td>
+</tr>
+<tr>
+<td><code>--lsf_cmd</code></td>
+<td>指定集群调度命令</td>
+<td>大规模测试时提交到集群（本地执行留空）</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="三、ISA-架构定制类"><a href="#三、ISA-架构定制类" class="headerlink" title="三、ISA/架构定制类"></a>三、ISA/架构定制类</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>核心作用</th>
+<th>示例/说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--isa</code></td>
+<td>指定RISC-V基础ISA子集</td>
+<td><code>--isa rv32im</code>（32位IM指令集）</td>
+</tr>
+<tr>
+<td><code>--priv</code></td>
+<td>指定特权级模型</td>
+<td><code>--priv m</code>（仅M模式）、<code>--priv sv39</code>（SV39虚拟内存）</td>
+</tr>
+<tr>
+<td><code>-m/--mabi</code></td>
+<td>指定编译的ABI</td>
+<td><code>-m ilp32</code>（32位ILP32 ABI）、<code>-m lp64</code>（64位LP64 ABI）</td>
+</tr>
+<tr>
+<td><code>--isa_extension</code></td>
+<td>指定扩展指令集</td>
+<td><code>--isa_extension "zba,zbb,zcb"</code>（启用Z系列扩展）</td>
+</tr>
+<tr>
+<td><code>--spike_params</code></td>
+<td>传递参数给Spike模拟器</td>
+<td><code>--spike_params "--hartids=0"</code>（指定hart ID）</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="四、定向测试指定类（手工测试用）"><a href="#四、定向测试指定类（手工测试用）" class="headerlink" title="四、定向测试指定类（手工测试用）"></a>四、定向测试指定类（手工测试用）</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>核心作用</th>
+<th>示例/说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--asm_tests</code></td>
+<td>指定手工编写的汇编测试文件</td>
+<td><code>--asm_tests tests/custom/hello_world.S</code></td>
+</tr>
+<tr>
+<td><code>--c_tests</code></td>
+<td>指定手工编写的C测试文件</td>
+<td><code>--c_tests tests/custom/hello_world.c</code></td>
+</tr>
+<tr>
+<td><code>--elf_tests</code></td>
+<td>指定已编译的ELF可执行文件</td>
+<td><code>--elf_tests build/hello_world.elf</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="五、随机种子控制类（生成式测试核心）"><a href="#五、随机种子控制类（生成式测试核心）" class="headerlink" title="五、随机种子控制类（生成式测试核心）"></a>五、随机种子控制类（生成式测试核心）</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>核心作用</th>
+<th>约束/示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--start_seed</code></td>
+<td>起始种子，后续迭代递增</td>
+<td>不能与<code>--seed/--seed_yaml</code>混用；<code>--start_seed 100</code></td>
+</tr>
+<tr>
+<td><code>--seed</code></td>
+<td>固定种子，仅执行1次迭代</td>
+<td>隐含<code>--iterations=1</code>；不能与其他种子参数混用；<code>--seed 12345</code></td>
+</tr>
+<tr>
+<td><code>--seed_yaml</code></td>
+<td>复用之前测试的种子文件</td>
+<td>隐含<code>--iterations=1</code>；<code>--seed_yaml seedlist.yaml</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="六、调试-辅助类"><a href="#六、调试-辅助类" class="headerlink" title="六、调试/辅助类"></a>六、调试/辅助类</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>核心作用</th>
+<th>示例/说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-v/--verbose</code></td>
+<td>打印详细执行日志</td>
+<td>调试时开启</td>
+</tr>
+<tr>
+<td><code>--noclean</code></td>
+<td>保留上一次测试的输出文件</td>
+<td>便于对比多次测试结果</td>
+</tr>
+<tr>
+<td><code>-d/--debug</code></td>
+<td>生成调试命令的日志文件</td>
+<td><code>-d debug.log</code>（命令记录到debug.log）</td>
+</tr>
+<tr>
+<td><code>--stop_on_first_error</code></td>
+<td>遇错即停</td>
+<td>快速定位问题，无需执行完所有测试</td>
+</tr>
+<tr>
+<td><code>--verilog_style_check</code></td>
+<td>执行Verilog风格校验</td>
+<td>规范代码格式，常用于CI流程</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="七、其他定制类"><a href="#七、其他定制类" class="headerlink" title="七、其他定制类"></a>七、其他定制类</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>核心作用</th>
+<th>示例/说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--iss_yaml</code></td>
+<td>指定参考模拟器的YAML配置</td>
+<td><code>--iss_yaml cva6.yaml</code>（适配CVA6的Spike配置）</td>
+</tr>
+<tr>
+<td><code>--simulator_yaml</code></td>
+<td>指定RTL仿真器的YAML配置</td>
+<td><code>--simulator_yaml simulator.yaml</code></td>
+</tr>
+<tr>
+<td><code>-ct/--custom_target</code></td>
+<td>指定自定义架构目标目录</td>
+<td>适配非预定义架构时使用</td>
+</tr>
+<tr>
+<td><code>-l/--linker</code></td>
+<td>指定自定义链接脚本</td>
+<td><code>-l custom_link.ld</code>（定制内存布局）</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/VMware/" class="category-chain-item">VMware</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/VMware/Ubuntu/" class="category-chain-item">Ubuntu</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/RISC-V/" class="category-chain-item">RISC-V</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/RISC-V/CVA6/" class="category-chain-item">CVA6</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Ubuntu/" class="print-no-link">#Ubuntu</a>
+      
+        <a href="/tags/RISC-V/" class="print-no-link">#RISC-V</a>
+      
+        <a href="/tags/CVA6/" class="print-no-link">#CVA6</a>
+      
+        <a href="/tags/Simulation/" class="print-no-link">#Simulation</a>
+      
+        <a href="/tags/Verilator/" class="print-no-link">#Verilator</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CVA6 Ubuntu实例化仿真</div>
+      <div>http://ruak.github.io/2026/01/23/CVA6-Ubuntu实例化仿真/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>HUANGDAN</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年1月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/23/VM-Ubuntu-VMware-tools-Install/" title="VM-Ubuntu VMware-tools Install">
+                        <span class="hidden-mobile">VM-Ubuntu VMware-tools Install</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
