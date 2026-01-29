@@ -19,29 +19,24 @@
   <meta name="author" content="HUANGDAN">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Hexo-Fluid 文章Latex公式渲染问题描述在使用 Hexo+Fluid 主题上传用 Markdown+Vscode 书写的文档时，发现在文章中嵌入的 LaTeX 公式无法正确渲染。 解决方案Pandoc参考博客Hexo LaTeX数学公式渲染的内容，搭配hexo-renderer-pandoc渲染包含 LaTeX 数学公式的博客文章时，出现了多个警告，核心问题是\space、\xrigh">
+    <meta name="description" content="VexRiscv 体系架构分析VexRiscv 用 SpinalHDL 实现，核心设计思想是“极度可参数化 + 插件化”：  CPU 核心本身只是一个 5 级（可裁剪）的 in‑order 流水线骨架；绝大多数功能（PC 管理、寄存器文件、取指&#x2F;访存接口、hazard 逻辑、算术单元、CSR&#x2F;异常、MMU&#x2F;PMP、FPU、调试等）都以插件（Plugin）实现并在 CPU 实例化时组合。 如果不装任">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hexo-Fluid 文章Latex公式渲染">
-<meta property="og:url" content="http://ruak.github.io/2026/01/21/Hexo-Fluid%20%E6%96%87%E7%AB%A0Latex%E5%85%AC%E5%BC%8F%E6%B8%B2%E6%9F%93/index.html">
+<meta property="og:title" content="VexRiscv 体系架构分析">
+<meta property="og:url" content="http://ruak.github.io/2026/01/27/VexRiscv-%E4%BD%93%E7%B3%BB%E6%9E%B6%E6%9E%84%E5%88%86%E6%9E%90/index.html">
 <meta property="og:site_name" content="HUANGDAN">
-<meta property="og:description" content="Hexo-Fluid 文章Latex公式渲染问题描述在使用 Hexo+Fluid 主题上传用 Markdown+Vscode 书写的文档时，发现在文章中嵌入的 LaTeX 公式无法正确渲染。 解决方案Pandoc参考博客Hexo LaTeX数学公式渲染的内容，搭配hexo-renderer-pandoc渲染包含 LaTeX 数学公式的博客文章时，出现了多个警告，核心问题是\space、\xrigh">
+<meta property="og:description" content="VexRiscv 体系架构分析VexRiscv 用 SpinalHDL 实现，核心设计思想是“极度可参数化 + 插件化”：  CPU 核心本身只是一个 5 级（可裁剪）的 in‑order 流水线骨架；绝大多数功能（PC 管理、寄存器文件、取指&#x2F;访存接口、hazard 逻辑、算术单元、CSR&#x2F;异常、MMU&#x2F;PMP、FPU、调试等）都以插件（Plugin）实现并在 CPU 实例化时组合。 如果不装任">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://ruak.github.io/PostImg/LatexProblem.png">
-<meta property="article:published_time" content="2026-01-21T06:44:30.000Z">
-<meta property="article:modified_time" content="2026-01-21T09:36:37.839Z">
+<meta property="article:published_time" content="2026-01-27T06:56:14.000Z">
+<meta property="article:modified_time" content="2026-01-27T10:01:16.841Z">
 <meta property="article:author" content="HUANGDAN">
-<meta property="article:tag" content="Fluid">
-<meta property="article:tag" content="Hexo">
-<meta property="article:tag" content="Kramed">
-<meta property="article:tag" content="Latex">
-<meta property="article:tag" content="MathJax">
-<meta property="article:tag" content="Pandoc">
+<meta property="article:tag" content="Computer Architecture">
+<meta property="article:tag" content="RISC-V">
+<meta property="article:tag" content="VexRiscv">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://ruak.github.io/PostImg/LatexProblem.png">
   
   
   
-  <title>Hexo-Fluid 文章Latex公式渲染 - HUANGDAN</title>
+  <title>VexRiscv 体系架构分析 - HUANGDAN</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -331,7 +326,7 @@ mjx-container[display="true"] + br {
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Hexo-Fluid 文章Latex公式渲染"></span>
+            <span id="subtitle" data-typed-text="VexRiscv 体系架构分析"></span>
           
         </div>
 
@@ -347,8 +342,8 @@ mjx-container[display="true"] + br {
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2026-01-21 14:44" pubdate>
-          2026年1月21日 下午
+        <time datetime="2026-01-27 14:56" pubdate>
+          2026年1月27日 下午
         </time>
       </span>
     
@@ -359,7 +354,7 @@ mjx-container[display="true"] + br {
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          606 字
+          1.2k 字
         
       </span>
     
@@ -370,7 +365,7 @@ mjx-container[display="true"] + br {
         
         
         
-          6 分钟
+          10 分钟
         
       </span>
     
@@ -422,38 +417,53 @@ mjx-container[display="true"] + br {
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Hexo-Fluid 文章Latex公式渲染</h1>
+            <h1 id="seo-header">VexRiscv 体系架构分析</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="Hexo-Fluid-文章Latex公式渲染"><a href="#Hexo-Fluid-文章Latex公式渲染" class="headerlink" title="Hexo-Fluid 文章Latex公式渲染"></a>Hexo-Fluid 文章Latex公式渲染</h1><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>在使用 Hexo+Fluid 主题上传用 Markdown+Vscode 书写的文档时，发现在文章中嵌入的 LaTeX 公式无法正确渲染。</p>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><h3 id="Pandoc"><a href="#Pandoc" class="headerlink" title="Pandoc"></a>Pandoc</h3><p>参考博客<a target="_blank" rel="noopener" href="https://littlebugneverupset.github.io/2025/07/03/tools/hexo-Latex-render/">Hexo LaTeX数学公式渲染</a>的内容，搭配hexo-renderer-pandoc渲染包含 LaTeX 数学公式的博客文章时，出现了多个警告，核心问题是\space、\xrightarrow等 LaTeX 控制序列不被 pandoc 识别。</p>
-<h3 id="Mathjax-kramed"><a href="#Mathjax-kramed" class="headerlink" title="Mathjax+kramed"></a>Mathjax+kramed</h3><p>hexo-renderer-pandoc对 LaTeX 数学公式的支持并不友好，Hexo 生态中更成熟的方案是使用hexo-renderer-kramed + MathJax，步骤如下：</p>
-<p><strong>1.卸载旧渲染器</strong>（如果你没有安装上述渲染器请跳过）</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">npm uninstall hexo-renderer-pandoc --save  <span class="hljs-comment"># (如果你下载的是其他渲染器请自行卸载)</span><br></code></pre></td></tr></table></figure>
-<p><strong>2.安装新渲染器</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">npm install hexo-renderer-kramed --save<br></code></pre></td></tr></table></figure>
-<p><strong>3.配置 MathJax（让 Hexo 支持 LaTeX 公式）</strong></p>
-<p>编辑 Hexo 根目录的_config.yml，在末尾添加：</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># 以下是我的配置，可以根据需要自行修改</span><br><span class="hljs-attr">mathjax:</span><br>  <span class="hljs-attr">tags:</span> <span class="hljs-string">none</span><br>  <span class="hljs-attr">single_dollar:</span> <span class="hljs-literal">true</span><br>  <span class="hljs-attr">cjk_width:</span> <span class="hljs-number">0.9</span><br>  <span class="hljs-attr">normal_width:</span> <span class="hljs-number">0.6</span><br>  <span class="hljs-attr">append_css:</span> <span class="hljs-literal">true</span><br>  <span class="hljs-attr">every_page:</span> <span class="hljs-literal">true</span><br>  <span class="hljs-attr">cdn:</span> <span class="hljs-string">https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js</span><br>  <span class="hljs-attr">packages:</span><br>  <span class="hljs-attr">extension_options:</span> {}<br></code></pre></td></tr></table></figure>
-<p><strong>4.配置 Fluid 主题支持 MathJax</strong></p>
-<p>编辑themes/fluid/_config.yml，找到math相关配置，修改为：</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">math:</span><br>  <span class="hljs-attr">enable:</span> <span class="hljs-literal">true</span><br>  <span class="hljs-attr">engine:</span> <span class="hljs-string">mathjax</span><br>  <span class="hljs-attr">mathjax:</span><br>    <span class="hljs-attr">src:</span> <span class="hljs-string">https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js</span><br>    <span class="hljs-attr">options:</span><br>      <span class="hljs-attr">tex:</span><br>        <span class="hljs-attr">inlineMath:</span> [ [<span class="hljs-string">'$'</span>,<span class="hljs-string">'$'</span>], [<span class="hljs-string">'\\('</span>,<span class="hljs-string">'\\)'</span>] ]<br>        <span class="hljs-attr">displayMath:</span> [ [<span class="hljs-string">'$$'</span>,<span class="hljs-string">'$$'</span>], [<span class="hljs-string">'\\['</span>,<span class="hljs-string">'\\]'</span>] ]<br></code></pre></td></tr></table></figure>
-<p><strong>5.重启 Hexo 服务</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">hexo clean &amp;&amp; hexo g &amp;&amp; hexo s <span class="hljs-comment"># bash</span><br></code></pre></td></tr></table></figure>
-<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell">hexo clean; hexo g; hexo s <span class="hljs-comment"># powershell</span><br></code></pre></td></tr></table></figure>
-<p>完成后，你可以直接使用原本的 LaTeX 公式语法。</p>
-<h2 id="ExtraProblem"><a href="#ExtraProblem" class="headerlink" title="ExtraProblem"></a>ExtraProblem</h2><p><img src="/PostImg/LatexProblem.png" srcset="/img/loading.gif" lazyload alt="ExtraLatexProblem"></p>
-<p>在完成上述操作后，出现了一些意料之外的情况。大部分公式正常被渲染了，只有个别公式出现如图的情况。</p>
-<p>观察后发现是同一类问题，即X_{xxx}的形式存在导致渲染失败，但其余包含该形式的公式却正常渲染了，原因不明。</p>
-<h3 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h3><p>参考博客<a target="_blank" rel="noopener" href="https://blog.frwalker.top/posts/abd2/">不更换插件解决Hexo博客Latex公式的渲染问题</a>的内容，<strong>必要的情况下使用 \ 进行转义</strong>，即将渲染失败公式中 <strong>X_{xxx}</strong> <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.186ex;" xmlns="http://www.w3.org/2000/svg" width="4.532ex" height="3.262ex" role="img" focusable="false" viewBox="0 -1359.7 2003.2 1441.7"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mover"><g data-mml-node="mstyle"><g data-mml-node="mo"><path data-c="2192" d="M56 237T56 250T70 270H835Q719 357 692 493Q692 494 692 496T691 499Q691 511 708 511H711Q720 511 723 510T729 506T732 497T735 481T743 456Q765 389 816 336T935 261Q944 258 944 250Q944 244 939 241T915 231T877 212Q836 186 806 152T761 85T740 35T732 4Q730 -6 727 -8T711 -11Q691 -11 691 0Q691 7 696 25Q728 151 835 230H70Q56 237 56 250Z" transform="translate(1003.2,0)"></path><svg width="1103.2" height="865" x="0" y="-182" viewBox="275.8 -182 1103.2 865"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z" transform="scale(2.127,1)"></path></svg></g></g><g data-mml-node="mpadded" transform="translate(0,870.8) scale(0.707)"><g transform="translate(278,-200)"><g data-mml-node="mi"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">改</text></g><g data-mml-node="mi" transform="translate(1000,0)"><text data-variant="normal" transform="scale(1,-1)" font-size="884px" font-family="serif">为</text></g><g data-mml-node="mspace" transform="translate(2000,0)"></g></g></g></g></g></g></svg></mjx-container>  <strong>X\_{xxx}</strong> 的形式。</p>
-<h3 id="额外发现"><a href="#额外发现" class="headerlink" title="额外发现"></a>额外发现</h3><p>在后来希望将 Latex 公式居中显示时，</p>
-<figure class="highlight latex"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs latex">&lt;center&gt; <span class="hljs-built_in">$</span> XXX <span class="hljs-built_in">$</span> &lt;/center&gt;<br></code></pre></td></tr></table></figure>
-<p>发现原本不能被正常渲染的公式反而无需修改就能够正常渲染了，修改后反而无法渲染。</p>
-<p>另外由于 HTML 标签与 Markdown 语法的解析优先级冲突，在 HTML 标签内的语句使用 ** 加粗无法正常被识别，直接使用 HTML 标签来加粗即可生效。</p>
-<figure class="highlight latex"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs latex">&lt;b&gt; XXX &lt;/b&gt;<br></code></pre></td></tr></table></figure>
+                <h1 id="VexRiscv-体系架构分析"><a href="#VexRiscv-体系架构分析" class="headerlink" title="VexRiscv 体系架构分析"></a>VexRiscv 体系架构分析</h1><p><a target="_blank" rel="noopener" href="https://github.com/SpinalHDL/VexRiscv">VexRiscv</a> 用 <code>SpinalHDL</code> 实现，核心设计思想是“极度可参数化 + 插件化”：</p>
+<ul>
+<li><code>CPU</code> 核心本身只是一个 5 级（可裁剪）的 <code>in‑order</code> 流水线骨架；绝大多数功能（<code>PC 管理、寄存器文件、取指/访存接口、hazard 逻辑、算术单元、CSR/异常、MMU/PMP、FPU、调试等</code>）都以插件（<code>Plugin</code>）实现并在 <code>CPU</code> 实例化时组合。</li>
+<li>如果不装任何 <code>plugin</code>，生成的就是仅含流水线阶段与基本仲裁的空壳 <code>CPU</code>；所有功能均通过插件插入 <code>pipeline</code> 的不同 <code>stage</code> 来实现。</li>
+</ul>
+<h2 id="流水线与数据流"><a href="#流水线与数据流" class="headerlink" title="流水线与数据流"></a>流水线与数据流</h2><h3 id="流水线"><a href="#流水线" class="headerlink" title="流水线"></a>流水线</h3><p>通常的 5 个阶段：</p>
+<ul>
+<li>Prefetch / Fetch</li>
+<li>Decode</li>
+<li>Execute</li>
+<li>Memory</li>
+<li>WriteBack</li>
+</ul>
+<p>流水线是 <code>in‑order</code>，插件可以在任意 <code>stage</code> 插入/读取信号，工具链自动为跨阶段信号做必要的寄存/转发（<code>automatic pipelining</code>）。</p>
+<h3 id="数据流"><a href="#数据流" class="headerlink" title="数据流"></a>数据流</h3><p>指令流典型路径：</p>
+<pre><code class="hljs">i.IBus 插件负责取指（简单接口或带 cache 的接口，通过不同 IBus*Plugin 提供）。
 
+ii.Decoder 插件在 Decode 阶段解码指令并产生控制信号、指示寄存器使用/写回、bypassable 标志等。
+
+iii.SrcPlugin 负责生成常用的 SRC1/SRC2/SRC_ADD/SRC_SUB/SRC_LESS 等运算数（可以选择在 Decode 或 Execute 生成，以折中 bypass 网络/时序）。
+
+iv.Execute 阶段由 ALU/Branch/Shifter/Mult/Div/FPU 等插件计算，结果按插件配置注入到后续 stage（Execute/Memory/WriteBack）。
+
+v.DBus 插件处理负载/存储访问（simple 或 cached）。
+
+vi.RegFilePlugin 在 WriteBack（或配置的阶段）写回结果。
+</code></pre><h2 id="插件系统（Plugin）"><a href="#插件系统（Plugin）" class="headerlink" title="插件系统（Plugin）"></a>插件系统（Plugin）</h2><p><code>VexRiscv</code>围绕流水线的各阶段来构建，每个功能对象可以以插件的形式随意添加。</p>
+<h3 id="Pipeline"><a href="#Pipeline" class="headerlink" title="Pipeline"></a><a target="_blank" rel="noopener" href="https://github.com/SpinalHDL/VexRiscv/blob/6334f430fe1bed302733c6ea6c44f8b514f3e2c6/src/main/scala/vexriscv/Pipeline.scala">Pipeline</a></h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs markdown">“一个Pipeline对象有很多个stage。叫做Stageable 的元素可以被一个stage传递到下一个stage。插件会被整合进整个流水线，它们可以给每个stage添加逻辑，可以使用其中一个Stageable 作为流水线上某个特定stage的输入，可以插入新的Stageable 到流水线的下一个stage。<br><br>Pipeline对象会自动负责管理这些stageable 。如果一个插件在EXECUTE阶段需要stagealbe OP<span class="hljs-emphasis">_A，而OP_</span>A是DECODE阶段由其它插件插入流水线的，随后Pipline对象会确保OP<span class="hljs-emphasis">_A沿着流水线传递到DECODE阶段。</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">如果插件在EXECUTE阶段产生了一个stageable RESULT，随后需要将它导入WRITEBACK阶段，流水线阶段会再一次确保它能被送过去，无论在WRITEBACK和EXECUTE之间有多少中间stage。”</span><br><span class="hljs-emphasis"></span><br><span class="hljs-emphasis">---[<span class="hljs-string">CPU设计的新思路 "The VexRiscv CPU - A New Way to Design"</span>](<span class="hljs-link">https://zhuanlan.zhihu.com/p/404224698</span>)</span><br></code></pre></td></tr></table></figure>
+<p>在VexRiscv中，流水线阶段的描述如下：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">VexRiscv</span>(<span class="hljs-params">val config : <span class="hljs-type">VexRiscvConfig</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Component</span> <span class="hljs-keyword">with</span> <span class="hljs-title">Pipeline</span></span>{<br>  <span class="hljs-class"><span class="hljs-keyword">type</span>  <span class="hljs-title">T</span> </span>= <span class="hljs-type">VexRiscv</span><br>  <span class="hljs-keyword">import</span> config._<br><br>  <span class="hljs-comment">//Define stages</span><br>  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">newStage</span></span>(): <span class="hljs-type">Stage</span> = { <span class="hljs-keyword">val</span> s = <span class="hljs-keyword">new</span> <span class="hljs-type">Stage</span>; stages += s; s }<br>  <span class="hljs-keyword">val</span> decode    = newStage()<br>  <span class="hljs-keyword">val</span> execute   = newStage()<br>  <span class="hljs-keyword">val</span> memory    = ifGen(config.withMemoryStage)    (newStage())<br>  <span class="hljs-keyword">val</span> writeBack = ifGen(config.withWriteBackStage) (newStage())<br><br><span class="hljs-comment">/* </span><br><span class="hljs-comment">object ifGen {</span><br><span class="hljs-comment">  def apply[T](cond: Boolean)(block: =&gt; T): T = if (cond) block else  null.asInstanceOf[T]</span><br><span class="hljs-comment">}</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">https://github.com/SpinalHDL/SpinalHDL/blob/b3623617a34c3c0127589b53cbcd2e743b308c06/core/src/main/scala/spinal/core/Misc.scala#L532</span><br><span class="hljs-comment">*/</span><br>...<br></code></pre></td></tr></table></figure>
+<p><code>VexRiscv</code>是<code>Component</code>（<code>SpinalHDL</code>的一个原语，等价于一个<code>Verilog</code>的<code>module</code>）的一个带有<code>Pipeline</code>字段的子类。<code>CPU</code>中一定有<code>decode</code>和<code>execute</code>这两个<code>stage</code>，而访存和写回<code>stage</code>是可选的，主要看你期望的配置。<code>stage</code>的顺序由<code>newStage()</code>的调用顺序决定。一旦定义好了<code>CPU</code>的各个<code>stage</code>，就可以通过插件来向流水线添加逻辑了。</p>
+<p>关于CPU的文件统一都放在了路径<code>https://github.com/SpinalHDL/VexRiscv/tree/master/src/main/scala/vexriscv/plugin</code>下。</p>
+<h3 id="实例化"><a href="#实例化" class="headerlink" title="实例化"></a>实例化</h3><p><a target="_blank" rel="noopener" href="https://github.com/SpinalHDL/VexRiscv/blob/master/src/main/scala/vexriscv/demo/GenCustomCsr.scala">GenCustomCsr</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs sacla">config = VexRiscvConfig(<br>  plugins = List(<br>    new CustomCsrDemoPlugin,<br>    new CsrPlugin(CsrPluginConfig.small),<br>    new CustomCsrDemoGpioPlugin,<br>    new IBusSimplePlugin(<br>      resetVector = 0x00000000l,<br>      cmdForkOnSecondStage = false,<br>      cmdForkPersistence = false,<br>      prediction = NONE,<br>      catchAccessFault = false,<br>      compressedGen = false<br>    ),<br>    new DBusSimplePlugin(<br>      catchAddressMisaligned = false,<br>      catchAccessFault = false<br>    ),<br>    new DecoderSimplePlugin(<br>      catchIllegalInstruction = false<br>    ),<br>    new RegFilePlugin(<br>      regFileReadyKind = plugin.SYNC,<br>      zeroBoot = false<br>    ),<br>    new IntAluPlugin,<br>    new SrcPlugin(<br>      separatedAddSub = false,<br>      executeInsertion = false<br>    ),<br>    new FullBarrelShifterPlugin,<br>    new HazardSimplePlugin(<br>      bypassExecute           = true,<br>      bypassMemory            = true,<br>      bypassWriteBack         = true,<br>      bypassWriteBackBuffer   = true,<br>      pessimisticUseSrc       = false,<br>      pessimisticWriteRegFile = false,<br>      pessimisticAddressMatch = false<br>    ),<br>    new BranchPlugin(<br>      earlyBranch = false,<br>      catchAddressMisaligned = false<br>    ),<br>    new YamlPlugin("cpu0.yaml")<br>  )<br>)<br></code></pre></td></tr></table></figure>
+<p>这是源码<code>demo</code>中最小的<code>CPU</code>配置，所需的插件被添加到<code>config</code>的<code>plugins</code>中，必须有这几个基本插件才能构成完整的<code>CPU</code>。</p>
+<p>然后实现实例化：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-keyword">val</span> cpu = <span class="hljs-keyword">new</span> <span class="hljs-type">VexRiscv</span>(config)<br></code></pre></td></tr></table></figure>
+<p>如果我们想添加乘法指令拓展，只需要在plugins中new一个乘法插件。</p>
+<p>VexRiscv的顶层文件：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">VexRiscv</span>(<span class="hljs-params">val config : <span class="hljs-type">VexRiscvConfig</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Component</span> <span class="hljs-keyword">with</span> <span class="hljs-title">Pipeline</span></span>{<br>  <span class="hljs-class"><span class="hljs-keyword">type</span>  <span class="hljs-title">T</span> </span>= <span class="hljs-type">VexRiscv</span><br>  <span class="hljs-keyword">import</span> config._<br><br>  <span class="hljs-comment">//Define stages</span><br>  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">newStage</span></span>(): <span class="hljs-type">Stage</span> = { <span class="hljs-keyword">val</span> s = <span class="hljs-keyword">new</span> <span class="hljs-type">Stage</span>; stages += s; s }<br>  <span class="hljs-keyword">val</span> decode    = newStage()<br>  <span class="hljs-keyword">val</span> execute   = newStage()<br>  <span class="hljs-keyword">val</span> memory    = ifGen(config.withMemoryStage)    (newStage())<br>  <span class="hljs-keyword">val</span> writeBack = ifGen(config.withWriteBackStage) (newStage())<br><br>  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">stagesFromExecute</span> </span>= stages.dropWhile(_ != execute)<br><br>  plugins ++= config.plugins<br><br>  ...<br>}<br></code></pre></td></tr></table></figure></p>
+<p>代码中可以看到，顶层是带有Pipeline特性的Component。带上Pipeline 这个特性，就表示你的类里面会有两个默认的列表：stages和plugins 。从顶层中可以发现，我们通过newStage例化的阶段，都被放进了stages列表里，配置中的插件列表被追加到了plugins里。</p>
+<p>Pipeline 特性里还实现了一个build 函数，它会在Component 被编译的时候自动调用。Pipeline的build函数先遍历plugins里的插件并调用它们的build函数，这时能统计出一些有用的信息，然后根据这些信息进行流水线的自动构建。</p>
+<h3 id="IBusSimple-IBusCached（指令前端）"><a href="#IBusSimple-IBusCached（指令前端）" class="headerlink" title="IBusSimple / IBusCached（指令前端）"></a>IBusSimple / IBusCached（指令前端）</h3><h4 id="IBusSimple"><a href="#IBusSimple" class="headerlink" title="IBusSimple"></a>IBusSimple</h4>
                 
               </div>
             
@@ -471,12 +481,12 @@ mjx-container[display="true"] + br {
     
       <span class="category-chain">
         
-  <a href="/categories/Hexo/" class="category-chain-item">Hexo</a>
+  <a href="/categories/RISC-V/" class="category-chain-item">RISC-V</a>
   
   
     <span>></span>
     
-  <a href="/categories/Hexo/Fluid/" class="category-chain-item">Fluid</a>
+  <a href="/categories/RISC-V/VexRiscv/" class="category-chain-item">VexRiscv</a>
   
   
 
@@ -488,7 +498,7 @@ mjx-container[display="true"] + br {
     
       <span class="category-chain">
         
-  <a href="/categories/Latex/" class="category-chain-item">Latex</a>
+  <a href="/categories/Computer-Architecture/" class="category-chain-item">Computer Architecture</a>
   
   
 
@@ -503,17 +513,11 @@ mjx-container[display="true"] + br {
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/Latex/" class="print-no-link">#Latex</a>
+        <a href="/tags/RISC-V/" class="print-no-link">#RISC-V</a>
       
-        <a href="/tags/Hexo/" class="print-no-link">#Hexo</a>
+        <a href="/tags/VexRiscv/" class="print-no-link">#VexRiscv</a>
       
-        <a href="/tags/Fluid/" class="print-no-link">#Fluid</a>
-      
-        <a href="/tags/MathJax/" class="print-no-link">#MathJax</a>
-      
-        <a href="/tags/Pandoc/" class="print-no-link">#Pandoc</a>
-      
-        <a href="/tags/Kramed/" class="print-no-link">#Kramed</a>
+        <a href="/tags/Computer-Architecture/" class="print-no-link">#Computer Architecture</a>
       
     </div>
   
@@ -525,8 +529,8 @@ mjx-container[display="true"] + br {
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Hexo-Fluid 文章Latex公式渲染</div>
-      <div>http://ruak.github.io/2026/01/21/Hexo-Fluid 文章Latex公式渲染/</div>
+      <div>VexRiscv 体系架构分析</div>
+      <div>http://ruak.github.io/2026/01/27/VexRiscv-体系架构分析/</div>
     </div>
     <div class="license-meta">
       
@@ -538,7 +542,7 @@ mjx-container[display="true"] + br {
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2026年1月21日</div>
+          <div>2026年1月27日</div>
         </div>
       
       
@@ -570,9 +574,9 @@ mjx-container[display="true"] + br {
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/01/21/Hexo-Fluid-%E5%8A%9F%E8%83%BD%E6%8B%93%E5%B1%95-banner%E9%9A%8F%E6%9C%BA%E5%8C%96%E6%98%BE%E7%A4%BA/" title="Hexo-Fluid 功能拓展--banner随机化显示">
+                      <a href="/2026/01/29/Litex-VexRiscv-%E9%83%A8%E7%BD%B2Linux%E8%87%B3Xilinx-Nexys4ddr-FPGA%E6%9D%BF%E4%B8%8A/" title="Litex-VexRiscv 部署Linux Soc至FPGA板上">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Hexo-Fluid 功能拓展--banner随机化显示</span>
+                        <span class="hidden-mobile">Litex-VexRiscv 部署Linux Soc至FPGA板上</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -580,8 +584,8 @@ mjx-container[display="true"] + br {
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2026/01/21/CVA6-BP-Branch-Prediction-%E5%BB%BA%E6%A8%A1%E5%88%86%E6%9E%90/" title="CVA6 BP(Branch-Prediction)建模分析">
-                        <span class="hidden-mobile">CVA6 BP(Branch-Prediction)建模分析</span>
+                      <a href="/2026/01/23/Hexo-Fluid-%E5%8A%9F%E8%83%BD%E6%8B%93%E5%B1%95-%E7%9B%AE%E5%BD%95%E5%85%A8%E5%B1%95%E5%BC%80/" title="Hexo-Fluid 功能拓展--目录全展开">
+                        <span class="hidden-mobile">Hexo-Fluid 功能拓展--目录全展开</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -604,7 +608,7 @@ mjx-container[display="true"] + br {
         var options = Object.assign(
           {"clientID":"Ov23liShVrg2q1cvgy8e","clientSecret":"c799aabf17670a714bab29a1ec1fde855622bcd6","repo":"hexo-fluid-gitalk","owner":"Ruak","admin":["Ruak"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://vercel.prohibitorum.top/github_access_token"},
           {
-            id: '8692509f6a5d6b6bc17d68a66eb6be2a'
+            id: 'df4aec3026c7ce60a4107c1ab4fae22a'
           }
         )
         var gitalk = new Gitalk(options);

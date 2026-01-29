@@ -1,0 +1,975 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/milkcat.png">
+  <link rel="icon" href="/img/milkcat.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="HUANGDAN">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Litex-VexRiscv 部署Linux Soc至FPGA板上本项目基于FPGA的Litex框架实现，具体参考linux-on-litex-vexriscv该开源库。 环境 Xilinx Nexys4ddr A7-100T 开发板 Digilent Genesys2 开发板 PC-Ubuntu虚拟机(预留足够内存以安装Vivado及其他工具链)  实现具体步骤如下： 先决条件123sudo a">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Litex-VexRiscv 部署Linux Soc至FPGA板上">
+<meta property="og:url" content="http://ruak.github.io/2026/01/29/Litex-VexRiscv-%E9%83%A8%E7%BD%B2Linux%E8%87%B3Xilinx-Nexys4ddr-FPGA%E6%9D%BF%E4%B8%8A/index.html">
+<meta property="og:site_name" content="HUANGDAN">
+<meta property="og:description" content="Litex-VexRiscv 部署Linux Soc至FPGA板上本项目基于FPGA的Litex框架实现，具体参考linux-on-litex-vexriscv该开源库。 环境 Xilinx Nexys4ddr A7-100T 开发板 Digilent Genesys2 开发板 PC-Ubuntu虚拟机(预留足够内存以安装Vivado及其他工具链)  实现具体步骤如下： 先决条件123sudo a">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-01-29T01:34:43.000Z">
+<meta property="article:modified_time" content="2026-01-29T03:31:40.536Z">
+<meta property="article:author" content="HUANGDAN">
+<meta property="article:tag" content="Computer Architecture">
+<meta property="article:tag" content="FPGA">
+<meta property="article:tag" content="Genesys2">
+<meta property="article:tag" content="Litex">
+<meta property="article:tag" content="Nexys4ddr">
+<meta property="article:tag" content="RISC-V">
+<meta property="article:tag" content="VexRiscv">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Litex-VexRiscv 部署Linux Soc至FPGA板上 - HUANGDAN</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ruak.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":50,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>HUANGDAN</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true data-random-banner='/img/random/bochi.png,/img/random/ChainsawMan.png,/img/random/charlotte.png,/img/random/denmension.png,/img/random/future.png,/img/random/pink.png,/img/random/purple.png,/img/random/rose.png,/img/random/short.png,/img/random/SNAFFUR.png,/img/random/thick.png,/img/random/white.png'
+     style="background: url('/img/random/bochi.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Litex-VexRiscv 部署Linux Soc至FPGA板上"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        HUANGDAN
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-01-29 09:34" pubdate>
+          2026年1月29日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          873 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          8 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+
+  <script>
+    (function() {
+      var banner = document.getElementById('banner');
+      if (!banner) return;
+      var list = banner.getAttribute('data-random-banner');
+      if (!list) return;
+      list = list.split(',').filter(Boolean);
+      if (list.length === 0) return;
+      var pick = list[Math.floor(Math.random() * list.length)];
+      banner.style.backgroundImage = "url('" + pick + "')";
+    })();
+  </script>
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Litex-VexRiscv 部署Linux Soc至FPGA板上</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Litex-VexRiscv-部署Linux-Soc至FPGA板上"><a href="#Litex-VexRiscv-部署Linux-Soc至FPGA板上" class="headerlink" title="Litex-VexRiscv 部署Linux Soc至FPGA板上"></a>Litex-VexRiscv 部署Linux Soc至FPGA板上</h1><p>本项目基于FPGA的<a target="_blank" rel="noopener" href="https://github.com/enjoy-digital/litex">Litex</a>框架实现，具体参考<a target="_blank" rel="noopener" href="https://github.com/litex-hub/linux-on-litex-vexriscv">linux-on-litex-vexriscv</a>该开源库。</p>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><ul>
+<li>Xilinx Nexys4ddr A7-100T 开发板</li>
+<li>Digilent Genesys2 开发板</li>
+<li>PC-Ubuntu虚拟机(预留足够内存以安装Vivado及其他工具链)</li>
+</ul>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>具体步骤如下：</p>
+<h3 id="先决条件"><a href="#先决条件" class="headerlink" title="先决条件"></a>先决条件</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">sudo</span> apt install build-essential device-tree-compiler wget git python3-setuptools<br>git <span class="hljs-built_in">clone</span> https://github.com/litex-hub/linux-on-litex-vexriscv<br><span class="hljs-built_in">cd</span> linux-on-litex-vexriscv<br></code></pre></td></tr></table></figure>
+<h3 id="安装LiteX"><a href="#安装LiteX" class="headerlink" title="安装LiteX"></a>安装LiteX</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sh">wget https://raw.githubusercontent.com/enjoy-digital/litex/master/litex_setup.py<br><span class="hljs-built_in">chmod</span> +x litex_setup.py<br>./litex_setup.py --init --install --user (--user to install to user directory)<br></code></pre></td></tr></table></figure>
+<p>For more information, please visit: <a target="_blank" rel="noopener" href="https://github.com/enjoy-digital/litex/wiki/Installation">https://github.com/enjoy-digital/litex/wiki/Installation</a></p>
+<h3 id="安装RISC-V工具链"><a href="#安装RISC-V工具链" class="headerlink" title="安装RISC-V工具链"></a>安装RISC-V工具链</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sh">wget https://static.dev.sifive.com/dev-tools/riscv64-unknown-elf-gcc-8.1.0-2019.01.0-x86_64-linux-ubuntu14.tar.gz<br>tar -xvf riscv64-unknown-elf-gcc-8.1.0-2019.01.0-x86_64-linux-ubuntu14.tar.gz<br><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$PATH</span>:<span class="hljs-variable">$PWD</span>/riscv64-unknown-elf-gcc-8.1.0-2019.01.0-x86_64-linux-ubuntu14/bin/<br></code></pre></td></tr></table></figure>
+<h3 id="安装SBT（用于自定义CPU配置所需）"><a href="#安装SBT（用于自定义CPU配置所需）" class="headerlink" title="安装SBT（用于自定义CPU配置所需）"></a>安装SBT（用于自定义CPU配置所需）</h3><p><a target="_blank" rel="noopener" href="https://www.scala-sbt.org/1.x/docs/Installing-sbt-on-Linux.html#Installing+sbt+on+Linux">https://www.scala-sbt.org/1.x/docs/Installing-sbt-on-Linux.html#Installing+sbt+on+Linux</a></p>
+<p>当前使用的是Ubuntu虚拟机：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt-get update<br><span class="hljs-built_in">sudo</span> apt-get install apt-transport-https curl gnupg -yqq<br><span class="hljs-built_in">echo</span> <span class="hljs-string">"deb https://repo.scala-sbt.org/scalasbt/debian all main"</span> | <span class="hljs-built_in">sudo</span> <span class="hljs-built_in">tee</span> /etc/apt/sources.list.d/sbt.list<br><span class="hljs-built_in">echo</span> <span class="hljs-string">"deb https://repo.scala-sbt.org/scalasbt/debian /"</span> | <span class="hljs-built_in">sudo</span> <span class="hljs-built_in">tee</span> /etc/apt/sources.list.d/sbt_old.list<br>curl -sL <span class="hljs-string">"https://keyserver.ubuntu.com/pks/lookup?op=get&amp;search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823"</span> | <span class="hljs-built_in">sudo</span> -H gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import<br><span class="hljs-built_in">sudo</span> <span class="hljs-built_in">chmod</span> 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg<br><span class="hljs-built_in">sudo</span> apt-get update<br><span class="hljs-built_in">sudo</span> apt-get install sbt<br></code></pre></td></tr></table></figure>
+<h3 id="安装Verilator（用于模拟）"><a href="#安装Verilator（用于模拟）" class="headerlink" title="安装Verilator（用于模拟）"></a>安装Verilator（用于模拟）</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">sudo</span> apt install verilator<br><span class="hljs-built_in">sudo</span> apt install libevent-dev libjson-c-dev<br></code></pre></td></tr></table></figure>
+<h3 id="安装OpenOCD（用于硬件测试）"><a href="#安装OpenOCD（用于硬件测试）" class="headerlink" title="安装OpenOCD（用于硬件测试）"></a>安装OpenOCD（用于硬件测试）</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">sudo</span> apt install libtool automake pkg-config libusb-1.0-0-dev<br>git <span class="hljs-built_in">clone</span> https://github.com/ntfreak/openocd.git<br><span class="hljs-built_in">cd</span> openocd<br>./bootstrap<br>./configure --enable-ftdi<br>make<br><span class="hljs-built_in">sudo</span> make install<br></code></pre></td></tr></table></figure>
+<h3 id="运行LiteX模拟"><a href="#运行LiteX模拟" class="headerlink" title="运行LiteX模拟"></a>运行LiteX模拟</h3><p>先从<a target="_blank" rel="noopener" href="https://github.com/litex-hub/linux-on-litex-vexriscv/issues/164">#164</a>下载预构建的比特流和Linux/OpenSBI镜像，将其解压到<code>images</code>文件夹目录下，然后：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">./sim.py<br></code></pre></td></tr></table></figure>
+<p>在这一步会遇到<code>sdram_module_nphases, get_sdram_phy_settings</code>这两个包找不到的报错，需要将其改为从<code>litedram.phy.model</code>引入，即：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> litedram.phy.model       <span class="hljs-keyword">import</span> SDRAMPHYModel,sdram_module_nphases, get_sdram_phy_settings<br></code></pre></td></tr></table></figure>
+<p>之后你应该能看到Linux启动并能与之互动：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><code class="hljs sh">        __   _ __      _  __<br>       / /  (_) /____ | |/_/<br>      / /__/ / __/ -_)&gt;  &lt;<br>     /____/_/\__/\__/_/|_|<br><br> (c) Copyright 2012-2019 Enjoy-Digital<br> (c) Copyright 2012-2015 M-Labs Ltd<br><br> BIOS built on May  2 2019 18:58:54<br> BIOS CRC passed (97ea247b)<br><br>--============ SoC info ================--<br>CPU:       VexRiscv @ 1MHz<br>ROM:       32KB<br>SRAM:      4KB<br>MAIN-RAM:  131072KB<br><br>--========= Peripherals init ===========--<br><br>--========== Boot sequence =============--<br>Booting from serial...<br>Press Q or ESC to abort boot completely.<br>sL5DdSMmkekro<br>Timeout<br>Executing booted program at 0x20000000<br>--============= Liftoff! ===============--<br>VexRiscv Machine Mode software built May  3 2019 19:33:43<br>--========== Booting Linux =============--<br>[    0.000000] No DTB passed to the kernel<br>[    0.000000] Linux version 5.0.9 (florent@lab) (gcc version 8.3.0 (Buildroot 2019.05-git-00938-g75f9fcd0c9)) <span class="hljs-comment">#1 Thu May 2 17:43:30 CEST 2019</span><br>[    0.000000] Initial ramdisk at: 0x(ptrval) (8388608 bytes)<br>[    0.000000] Zone ranges:<br>[    0.000000]   Normal   [mem 0x00000000c0000000-0x00000000c7ffffff]<br>[    0.000000] Movable zone start <span class="hljs-keyword">for</span> each node<br>[    0.000000] Early memory node ranges<br>[    0.000000]   node   0: [mem 0x00000000c0000000-0x00000000c7ffffff]<br>[    0.000000] Initmem setup node 0 [mem 0x00000000c0000000-0x00000000c7ffffff]<br>[    0.000000] elf_hwcap is 0x1100<br>[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 32512<br>[    0.000000] Kernel <span class="hljs-built_in">command</span> line: mem=128M@0x40000000 rootwait console=hvc0 root=/dev/ram0 init=/sbin/init swiotlb=32<br>[    0.000000] Dentry cache <span class="hljs-built_in">hash</span> table entries: 16384 (order: 4, 65536 bytes)<br>[    0.000000] Inode-cache <span class="hljs-built_in">hash</span> table entries: 8192 (order: 3, 32768 bytes)<br>[    0.000000] Sorting __ex_table...<br>[    0.000000] Memory: 119052K/131072K available (1957K kernel code, 92K rwdata, 317K rodata, 104K init, 184K bss, 12020K reserved, 0K cma-reserved)<br>[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=1, Nodes=1<br>[    0.000000] NR_IRQS: 0, nr_irqs: 0, preallocated irqs: 0<br>[    0.000000] clocksource: riscv_clocksource: mask: 0xffffffffffffffff max_cycles: 0x114c1bade8, max_idle_ns: 440795203839 ns<br>[    0.000155] sched_clock: 64 bits at 75MHz, resolution 13ns, wraps every 2199023255546ns<br>[    0.001515] Console: colour dummy device 80x25<br>[    0.008297] printk: console [hvc0] enabled<br>[    0.009219] Calibrating delay loop (skipped), value calculated using timer frequency.. 150.00 BogoMIPS (lpj=300000)<br>[    0.009919] pid_max: default: 32768 minimum: 301<br>[    0.016255] Mount-cache <span class="hljs-built_in">hash</span> table entries: 1024 (order: 0, 4096 bytes)<br>[    0.016802] Mountpoint-cache <span class="hljs-built_in">hash</span> table entries: 1024 (order: 0, 4096 bytes)<br>[    0.044297] devtmpfs: initialized<br>[    0.061343] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns<br>[    0.061981] futex <span class="hljs-built_in">hash</span> table entries: 256 (order: -1, 3072 bytes)<br>[    0.117611] clocksource: Switched to clocksource riscv_clocksource<br>[    0.251970] Unpacking initramfs...<br>[    2.005474] workingset: timestamp_bits=30 max_order=15 bucket_order=0<br>[    2.178440] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 254)<br>[    2.178909] io scheduler mq-deadline registered<br>[    2.179271] io scheduler kyber registered<br>[    3.031140] random: get_random_bytes called from init_oops_id+0x4c/0x60 with crng_init=0<br>[    3.043743] Freeing unused kernel memory: 104K<br>[    3.044070] This architecture does not have kernel memory protection.<br>[    3.044472] Run /init as init process<br>mount: mounting tmpfs on /dev/shm failed: Invalid argument<br>mount: mounting tmpfs on /tmp failed: Invalid argument<br>mount: mounting tmpfs on /run failed: Invalid argument<br>Starting syslogd: OK<br>Starting klogd: OK<br>Initializing random number generator... [    4.374589] random: <span class="hljs-built_in">dd</span>: uninitialized urandom <span class="hljs-built_in">read</span> (512 bytes <span class="hljs-built_in">read</span>)<br><span class="hljs-keyword">done</span>.<br>Starting network: ip: socket: Function not implemented<br>ip: socket: Function not implemented<br>FAIL<br><br><br>Welcome to Buildroot<br>buildroot login: root<br>login[48]: root login on <span class="hljs-string">'hvc0'</span><br><span class="hljs-comment"># help</span><br>Built-<span class="hljs-keyword">in</span> commands:<br>------------------<br>  . : [ [[ <span class="hljs-built_in">alias</span> <span class="hljs-built_in">bg</span> <span class="hljs-built_in">break</span> <span class="hljs-built_in">cd</span> <span class="hljs-built_in">chdir</span> <span class="hljs-built_in">command</span> <span class="hljs-built_in">continue</span> <span class="hljs-built_in">echo</span> <span class="hljs-built_in">eval</span> <span class="hljs-built_in">exec</span><br>  <span class="hljs-built_in">exit</span> <span class="hljs-built_in">export</span> <span class="hljs-literal">false</span> <span class="hljs-built_in">fg</span> <span class="hljs-built_in">getopts</span> <span class="hljs-built_in">hash</span> <span class="hljs-built_in">help</span> <span class="hljs-built_in">history</span> <span class="hljs-built_in">jobs</span> <span class="hljs-built_in">kill</span> <span class="hljs-built_in">let</span><br>  <span class="hljs-built_in">local</span> <span class="hljs-built_in">printf</span> <span class="hljs-built_in">pwd</span> <span class="hljs-built_in">read</span> <span class="hljs-built_in">readonly</span> <span class="hljs-built_in">return</span> <span class="hljs-built_in">set</span> <span class="hljs-built_in">shift</span> <span class="hljs-built_in">source</span> <span class="hljs-built_in">test</span> <span class="hljs-built_in">times</span><br>  <span class="hljs-built_in">trap</span> <span class="hljs-literal">true</span> <span class="hljs-built_in">type</span> <span class="hljs-built_in">ulimit</span> <span class="hljs-built_in">umask</span> <span class="hljs-built_in">unalias</span> <span class="hljs-built_in">unset</span> <span class="hljs-built_in">wait</span><br><span class="hljs-comment">#</span><br><br></code></pre></td></tr></table></figure>
+<h3 id="构建FPGA比特流"><a href="#构建FPGA比特流" class="headerlink" title="构建FPGA比特流"></a>构建FPGA比特流</h3><p>首先你需要在虚拟机上安装Vivado，安装后，构建比特流：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">./make.py --board=XXYY --cpu-count=X --build<br></code></pre></td></tr></table></figure>
+<h3 id="加载FPGA比特流"><a href="#加载FPGA比特流" class="headerlink" title="加载FPGA比特流"></a>加载FPGA比特流</h3><p>将比特流加载到你的主板，运行：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">./make.py --board=XXYY --cpu-count=X --load<br></code></pre></td></tr></table></figure>
+<p><strong>加载时需要跳线QSPI-JTAG</strong></p>
+<p>FPGA板编译成功的标识是DONE指示灯亮起，流水灯闪烁</p>
+<h3 id="通过串口加载Linux镜像"><a href="#通过串口加载Linux镜像" class="headerlink" title="通过串口加载Linux镜像"></a>通过串口加载Linux镜像</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sh">litex_term --images=images/boot.json /dev/ttyUSBX <br><br>(--safe : In <span class="hljs-keyword">case</span> of CRC Error, slower but should always work)<br></code></pre></td></tr></table></figure>
+<p>默认波特率会导致CRC Error，需要—safe模式</p>
+<h2 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h2><p>Nexys4ddr验证成功；</p>
+<p>Genesys2在加载后串口无法读取（待解决…）</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/RISC-V/" class="category-chain-item">RISC-V</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/RISC-V/VexRiscv/" class="category-chain-item">VexRiscv</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Computer-Architecture/" class="category-chain-item">Computer Architecture</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Litex/" class="category-chain-item">Litex</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/FPGA/" class="category-chain-item">FPGA</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/FPGA/Xilinx/" class="category-chain-item">Xilinx</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/FPGA/Xilinx/Nexys4ddr/" class="category-chain-item">Nexys4ddr</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/FPGA/Xilinx/Nexys4ddr/A7-100T/" class="category-chain-item">A7-100T</a>
+  
+  
+
+  
+
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/RISC-V/" class="print-no-link">#RISC-V</a>
+      
+        <a href="/tags/VexRiscv/" class="print-no-link">#VexRiscv</a>
+      
+        <a href="/tags/Computer-Architecture/" class="print-no-link">#Computer Architecture</a>
+      
+        <a href="/tags/FPGA/" class="print-no-link">#FPGA</a>
+      
+        <a href="/tags/Nexys4ddr/" class="print-no-link">#Nexys4ddr</a>
+      
+        <a href="/tags/Genesys2/" class="print-no-link">#Genesys2</a>
+      
+        <a href="/tags/Litex/" class="print-no-link">#Litex</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Litex-VexRiscv 部署Linux Soc至FPGA板上</div>
+      <div>http://ruak.github.io/2026/01/29/Litex-VexRiscv-部署Linux至Xilinx-Nexys4ddr-FPGA板上/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>HUANGDAN</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年1月29日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/01/27/VexRiscv-%E4%BD%93%E7%B3%BB%E6%9E%B6%E6%9E%84%E5%88%86%E6%9E%90/" title="VexRiscv 体系架构分析">
+                        <span class="hidden-mobile">VexRiscv 体系架构分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.8.0/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"Ov23liShVrg2q1cvgy8e","clientSecret":"c799aabf17670a714bab29a1ec1fde855622bcd6","repo":"hexo-fluid-gitalk","owner":"Ruak","admin":["Ruak"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://vercel.prohibitorum.top/github_access_token"},
+          {
+            id: 'be20972bdd32ee5ed97951f45b414384'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      $toggle.text($childList.hasClass('tocbot-is-collapsed') ? '+' : '-');
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle" aria-hidden="true">-</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
