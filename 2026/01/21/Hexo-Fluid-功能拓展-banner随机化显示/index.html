@@ -27,7 +27,7 @@
 <meta property="og:description" content="Hexo-Fluid 功能拓展—banner随机化显示由于原有指定图片显示功能过于呆板，笔者在原有主题基础上进行了随机化显示拓展，主要改动参考下文。如不需要了解细节部分但希望实现类似效果的读者直接复制代码到对应文件即可，你也可以在我的基础上继续探索类似的功能。  global hexoHexo 是一个基于 Node.js 的静态博客框架，它的插件系统大量使用事件驱动（EventEmitter）模式">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-01-21T08:25:53.000Z">
-<meta property="article:modified_time" content="2026-01-21T12:19:57.896Z">
+<meta property="article:modified_time" content="2026-01-30T07:01:55.584Z">
 <meta property="article:author" content="HUANGDAN">
 <meta property="article:tag" content="Fluid">
 <meta property="article:tag" content="Function Expansion">
@@ -719,6 +719,7 @@ mjx-container[display="true"] + br {
   
 </div>
 
+
   </footer>
 
   <!-- Scripts -->
@@ -784,16 +785,28 @@ mjx-container[display="true"] + br {
     function updateTocToggle($li, $childList) {
       var $toggle = $li.children('.toc-toggle');
       if ($toggle.length === 0) { return; }
-      $toggle.text($childList.hasClass('tocbot-is-collapsed') ? '+' : '-');
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      // 统一使用 ▶ 字符，通过旋转控制方向，避免不同字符导致的视觉比例不一致
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
     }
     function bindTocToggle() {
       if (!isExpandAllEnabled()) { return; }
       jQuery('#toc-body .toc-list-item').each(function() {
         var $li = jQuery(this);
         var $childList = $li.children('ol');
-        if ($childList.length === 0) { return; }
+        // 没有子目录的条目也需要占位，保证缩进对齐
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">▶</span>');
+          }
+          return;
+        }
+
         if ($li.children('.toc-toggle').length === 0) {
-          $li.prepend('<span class="toc-toggle" aria-hidden="true">-</span>');
+          // 统一使用 ▶ 字符，后续通过 CSS 旋转控制展开/折叠方向
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">▶</span>');
         }
         updateTocToggle($li, $childList);
       });

@@ -27,7 +27,7 @@
 <meta property="og:description" content="VexRiscv 体系架构分析VexRiscv 用 SpinalHDL 实现，核心设计思想是“极度可参数化 + 插件化”：  CPU 核心本身只是一个 5 级（可裁剪）的 in‑order 流水线骨架；绝大多数功能（PC 管理、寄存器文件、取指&#x2F;访存接口、hazard 逻辑、算术单元、CSR&#x2F;异常、MMU&#x2F;PMP、FPU、调试等）都以插件（Plugin）实现并在 CPU 实例化时组合。 如果不装任">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-01-27T06:56:14.000Z">
-<meta property="article:modified_time" content="2026-01-29T09:06:51.509Z">
+<meta property="article:modified_time" content="2026-01-29T10:04:47.006Z">
 <meta property="article:author" content="HUANGDAN">
 <meta property="article:tag" content="Computer Architecture">
 <meta property="article:tag" content="RISC-V">
@@ -450,9 +450,9 @@ v.DBus 插件处理负载/存储访问（simple 或 cached）。
 
 vi.RegFilePlugin 在 WriteBack（或配置的阶段）写回结果。
 </code></pre><h2 id="插件系统（Plugin）"><a href="#插件系统（Plugin）" class="headerlink" title="插件系统（Plugin）"></a>插件系统（Plugin）</h2><p><code>VexRiscv</code>围绕流水线的各阶段来构建，每个功能对象可以以插件的形式随意添加。</p>
-<h3 id="Pipeline"><a href="#Pipeline" class="headerlink" title="Pipeline"></a><a target="_blank" rel="noopener" href="https://github.com/SpinalHDL/VexRiscv/blob/6334f430fe1bed302733c6ea6c44f8b514f3e2c6/src/main/scala/vexriscv/Pipeline.scala">Pipeline</a></h3><p>“一个Pipeline对象有很多个stage。叫做Stageable 的元素可以被一个stage传递到下一个stage。插件会被整合进整个流水线，它们可以给每个stage添加逻辑，可以使用其中一个Stageable 作为流水线上某个特定stage的输入，可以插入新的Stageable 到流水线的下一个stage。</p>
-<p>Pipeline对象会自动负责管理这些stageable 。如果一个插件在EXECUTE阶段需要stagealbe OP_A，而OP_A是DECODE阶段由其它插件插入流水线的，随后Pipline对象会确保OP_A沿着流水线传递到DECODE阶段。</p>
-<p>如果插件在EXECUTE阶段产生了一个stageable RESULT，随后需要将它导入WRITEBACK阶段，流水线阶段会再一次确保它能被送过去，无论在WRITEBACK和EXECUTE之间有多少中间stage。”</p>
+<h3 id="Pipeline"><a href="#Pipeline" class="headerlink" title="Pipeline"></a><a target="_blank" rel="noopener" href="https://github.com/SpinalHDL/VexRiscv/blob/6334f430fe1bed302733c6ea6c44f8b514f3e2c6/src/main/scala/vexriscv/Pipeline.scala">Pipeline</a></h3><p>“一个<code>Pipeline</code>对象有很多个<code>stage</code>。叫做<code>Stageable</code>的元素可以被一个<code>stage</code>传递到下一个<code>stage</code>。插件会被整合进整个流水线，它们可以给每个<code>stage</code>添加逻辑，可以使用其中一个<code>Stageable</code>作为流水线上某个特定<code>stage</code>的输入，可以插入新的<code>Stageable</code>到流水线的下一个<code>stage</code>。</p>
+<p><code>Pipeline</code>对象会自动负责管理这些<code>stageable</code>。如果一个插件在<code>EXECUTE</code>阶段需要<code>stagealbe OP_A</code>，而<code>OP_A</code>是<code>DECODE</code>阶段由其它插件插入流水线的，随后<code>Pipline</code>对象会确保<code>OP_A</code>沿着流水线传递到<code>DECODE</code>阶段。</p>
+<p>如果插件在<code>EXECUTE</code>阶段产生了一个<code>stageable RESULT</code>，随后需要将它导入<code>WRITEBACK</code>阶段，流水线阶段会再一次确保它能被送过去，无论在<code>WRITEBACK</code>和<code>EXECUTE</code>之间有多少中间<code>stage</code>。”</p>
 <p>—-<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/404224698">CPU设计的新思路 “The VexRiscv CPU - A New Way to Design”</a></p>
 <p>在VexRiscv中，流水线阶段的描述如下：</p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">VexRiscv</span>(<span class="hljs-params">val config : <span class="hljs-type">VexRiscvConfig</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Component</span> <span class="hljs-keyword">with</span> <span class="hljs-title">Pipeline</span></span>{<br>  <span class="hljs-class"><span class="hljs-keyword">type</span>  <span class="hljs-title">T</span> </span>= <span class="hljs-type">VexRiscv</span><br>  <span class="hljs-keyword">import</span> config._<br><br>  <span class="hljs-comment">//Define stages</span><br>  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">newStage</span></span>(): <span class="hljs-type">Stage</span> = { <span class="hljs-keyword">val</span> s = <span class="hljs-keyword">new</span> <span class="hljs-type">Stage</span>; stages += s; s }<br>  <span class="hljs-keyword">val</span> decode    = newStage()<br>  <span class="hljs-keyword">val</span> execute   = newStage()<br>  <span class="hljs-keyword">val</span> memory    = ifGen(config.withMemoryStage)    (newStage())<br>  <span class="hljs-keyword">val</span> writeBack = ifGen(config.withWriteBackStage) (newStage())<br><br><span class="hljs-comment">/* </span><br><span class="hljs-comment">object ifGen {</span><br><span class="hljs-comment">  def apply[T](cond: Boolean)(block: =&gt; T): T = if (cond) block else  null.asInstanceOf[T]</span><br><span class="hljs-comment">}</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">https://github.com/SpinalHDL/SpinalHDL/blob/b3623617a34c3c0127589b53cbcd2e743b308c06/core/src/main/scala/spinal/core/Misc.scala#L532</span><br><span class="hljs-comment">*/</span><br>...<br></code></pre></td></tr></table></figure>
@@ -802,6 +802,7 @@ vi.RegFilePlugin 在 WriteBack（或配置的阶段）写回结果。
   
 </div>
 
+
   </footer>
 
   <!-- Scripts -->
@@ -867,16 +868,28 @@ vi.RegFilePlugin 在 WriteBack（或配置的阶段）写回结果。
     function updateTocToggle($li, $childList) {
       var $toggle = $li.children('.toc-toggle');
       if ($toggle.length === 0) { return; }
-      $toggle.text($childList.hasClass('tocbot-is-collapsed') ? '+' : '-');
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      // 统一使用 ▶ 字符，通过旋转控制方向，避免不同字符导致的视觉比例不一致
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
     }
     function bindTocToggle() {
       if (!isExpandAllEnabled()) { return; }
       jQuery('#toc-body .toc-list-item').each(function() {
         var $li = jQuery(this);
         var $childList = $li.children('ol');
-        if ($childList.length === 0) { return; }
+        // 没有子目录的条目也需要占位，保证缩进对齐
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">▶</span>');
+          }
+          return;
+        }
+
         if ($li.children('.toc-toggle').length === 0) {
-          $li.prepend('<span class="toc-toggle" aria-hidden="true">-</span>');
+          // 统一使用 ▶ 字符，后续通过 CSS 旋转控制展开/折叠方向
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">▶</span>');
         }
         updateTocToggle($li, $childList);
       });
