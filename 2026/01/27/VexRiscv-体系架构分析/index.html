@@ -27,7 +27,7 @@
 <meta property="og:description" content="VexRiscv 体系架构分析VexRiscv 用 SpinalHDL 实现，核心设计思想是“极度可参数化 + 插件化”：  CPU 核心本身只是一个 5 级（可裁剪）的 in‑order 流水线骨架；绝大多数功能（PC 管理、寄存器文件、取指&#x2F;访存接口、hazard 逻辑、算术单元、CSR&#x2F;异常、MMU&#x2F;PMP、FPU、调试等）都以插件（Plugin）实现并在 CPU 实例化时组合。 如果不装任">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-01-27T06:56:14.000Z">
-<meta property="article:modified_time" content="2026-02-03T01:41:29.952Z">
+<meta property="article:modified_time" content="2026-02-03T01:44:54.460Z">
 <meta property="article:author" content="HUANGDAN">
 <meta property="article:tag" content="Computer Architecture">
 <meta property="article:tag" content="RISC-V">
@@ -484,12 +484,9 @@ vi.RegFilePlugin 在 WriteBack（或配置的阶段）写回结果。
 <p><strong>2.阶段信号定义</strong><br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">IS_SIMD_ADD</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Stageable</span>(<span class="hljs-params"><span class="hljs-type">Bool</span></span>)</span><br></code></pre></td></tr></table></figure><br>这行代码定义了一个 Stageable 对象 IS_SIMD_ADD，类型为 Bool，用于在流水线中传递控制信号，表示当前指令是否是 SIMD_ADD 指令。</p>
 <p><strong>3.setup 方法</strong><br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">setup</span></span>(pipeline: <span class="hljs-type">VexRiscv</span>): <span class="hljs-type">Unit</span> = {<br>  <span class="hljs-keyword">import</span> pipeline.config._<br><br>  <span class="hljs-comment">//Retrieve the DecoderService instance</span><br>  <span class="hljs-keyword">val</span> decoderService = pipeline.service(classOf[<span class="hljs-type">DecoderService</span>])<br><br>  <span class="hljs-comment">//Specify the IS_SIMD_ADD default value when instructions are decoded</span><br>  decoderService.addDefault(<span class="hljs-type">IS_SIMD_ADD</span>, <span class="hljs-type">False</span>)<br><br>  <span class="hljs-comment">//Specify the instruction decoding which should be applied when the instruction matches the 'key' parttern</span><br>  decoderService.add(<br>    <span class="hljs-comment">//Bit pattern of the new SIMD_ADD instruction</span><br>    key = <span class="hljs-type">M</span><span class="hljs-string">"0000011----------000-----0110011"</span>,<br><br>    <span class="hljs-comment">//Decoding specification when the 'key' pattern is recognized in the instruction</span><br>    <span class="hljs-type">List</span>(<br>      <span class="hljs-type">IS_SIMD_ADD</span>              -&gt; <span class="hljs-type">True</span>,<br>      <span class="hljs-type">REGFILE_WRITE_VALID</span>      -&gt; <span class="hljs-type">True</span>, <span class="hljs-comment">//Enable the register file write</span><br>      <span class="hljs-type">BYPASSABLE_EXECUTE_STAGE</span> -&gt; <span class="hljs-type">True</span>, <span class="hljs-comment">//Notify the hazard management unit that the instruction result is already accessible in the EXECUTE stage (Bypass ready)</span><br>      <span class="hljs-type">BYPASSABLE_MEMORY_STAGE</span>  -&gt; <span class="hljs-type">True</span>, <span class="hljs-comment">//Same as above but for the memory stage</span><br>      <span class="hljs-type">RS1_USE</span>                  -&gt; <span class="hljs-type">True</span>, <span class="hljs-comment">//Notify the hazard management unit that this instruction uses the RS1 value</span><br>      <span class="hljs-type">RS2_USE</span>                  -&gt; <span class="hljs-type">True</span>  <span class="hljs-comment">//Same as above but for RS2.</span><br>    )<br>  )<br>}<br></code></pre></td></tr></table></figure><br>setup 方法用于配置插件和获取服务：</p>
 <ol>
-<li><p>获取 DecoderService 实例，用于配置指令解码规则</p>
-</li>
-<li><p>设置 IS_SIMD_ADD 的默认值为 False</p>
-</li>
-<li><p>定义指令编码模式和解码规则：</p>
-<ul>
+<li>获取 DecoderService 实例，用于配置指令解码规则</li>
+<li>设置 IS_SIMD_ADD 的默认值为 False</li>
+<li>定义指令编码模式和解码规则：<ul>
 <li>key = M”0000011—————000——-0110011”：定义了 SIMD_ADD 指令的编码模式</li>
 <li>当指令匹配该模式时，设置以下控制信号：<ul>
 <li>IS_SIMD_ADD -&gt; True：表示这是 SIMD_ADD 指令</li>
@@ -505,25 +502,21 @@ vi.RegFilePlugin 在 WriteBack（或配置的阶段）写回结果。
 </ol>
 <p><strong>4.build 方法</strong><br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">build</span></span>(pipeline: <span class="hljs-type">VexRiscv</span>): <span class="hljs-type">Unit</span> = {<br>  <span class="hljs-keyword">import</span> pipeline._<br>  <span class="hljs-keyword">import</span> pipeline.config._<br><br>  <span class="hljs-comment">//Add a new scope on the execute stage (used to give a name to signals)</span><br>  execute plug <span class="hljs-keyword">new</span> <span class="hljs-type">Area</span> {<br>    <span class="hljs-comment">//Define some signals used internally by the plugin</span><br>    <span class="hljs-keyword">val</span> rs1 = execute.input(<span class="hljs-type">RS1</span>).asUInt<br>    <span class="hljs-comment">//32 bits UInt value of the regfile[RS1]</span><br>    <span class="hljs-keyword">val</span> rs2 = execute.input(<span class="hljs-type">RS2</span>).asUInt<br>    <span class="hljs-keyword">val</span> rd = <span class="hljs-type">UInt</span>(<span class="hljs-number">32</span> bits)<br><br>    <span class="hljs-comment">//Do some computations</span><br>    rd(<span class="hljs-number">7</span> downto <span class="hljs-number">0</span>) := rs1(<span class="hljs-number">7</span> downto <span class="hljs-number">0</span>) + rs2(<span class="hljs-number">7</span> downto <span class="hljs-number">0</span>)<br>    rd(<span class="hljs-number">16</span> downto <span class="hljs-number">8</span>) := rs1(<span class="hljs-number">16</span> downto <span class="hljs-number">8</span>) + rs2(<span class="hljs-number">16</span> downto <span class="hljs-number">8</span>)<br>    rd(<span class="hljs-number">23</span> downto <span class="hljs-number">16</span>) := rs1(<span class="hljs-number">23</span> downto <span class="hljs-number">16</span>) + rs2(<span class="hljs-number">23</span> downto <span class="hljs-number">16</span>)<br>    rd(<span class="hljs-number">31</span> downto <span class="hljs-number">24</span>) := rs1(<span class="hljs-number">31</span> downto <span class="hljs-number">24</span>) + rs2(<span class="hljs-number">31</span> downto <span class="hljs-number">24</span>)<br><br>    <span class="hljs-comment">//When the instruction is a SIMD_ADD, write the result into the register file data path.</span><br>    when(execute.input(<span class="hljs-type">IS_SIMD_ADD</span>)) {<br>      execute.output(<span class="hljs-type">REGFILE_WRITE_DATA</span>) := rd.asBits<br>    }<br>  }<br>}<br></code></pre></td></tr></table></figure><br>build 方法用于实现指令的功能逻辑：</p>
 <ol>
-<li><p>在执行阶段（execute）添加一个新的 Area，用于组织相关信号</p>
-</li>
-<li><p>定义内部信号：</p>
-<ul>
+<li>在执行阶段（execute）添加一个新的 Area，用于组织相关信号</li>
+<li>定义内部信号：<ul>
 <li>rs1：从流水线输入获取 RS1 寄存器的值，转换为 UInt 类型</li>
 <li>rs2：从流水线输入获取 RS2 寄存器的值，转换为 UInt 类型</li>
 <li>rd：定义一个 32 位 UInt 类型的信号，用于存储结果</li>
 </ul>
 </li>
-<li><p>实现 SIMD 加法逻辑：</p>
-<ul>
+<li>实现 SIMD 加法逻辑：<ul>
 <li>rd (7 downto 0) := rs1 (7 downto 0) + rs2 (7 downto 0)：第 0 个 8 位通道的加法</li>
 <li>rd (16 downto 8) := rs1 (16 downto 8) + rs2 (16 downto 8)：第 1 个 8 位通道的加法</li>
 <li>rd (23 downto 16) := rs1 (23 downto 16) + rs2 (23 downto 16)：第 2 个 8 位通道的加法</li>
 <li>rd (31 downto 24) := rs1 (31 downto 24) + rs2 (31 downto 24)：第 3 个 8 位通道的加法</li>
 </ul>
 </li>
-<li><p>结果写回逻辑：</p>
-<ul>
+<li>结果写回逻辑：<ul>
 <li>当 IS_SIMD_ADD 信号为 True 时，将 rd 的值转换为 Bits 类型，并写入 REGFILE_WRITE_DATA 信号，以便在写回阶段写入寄存器文件</li>
 </ul>
 </li>
@@ -566,26 +559,22 @@ vi.RegFilePlugin 在 WriteBack（或配置的阶段）写回结果。
 <p>这两个类都继承自Plugin[VexRiscv]，表明它们是 VexRiscv 插件。</p>
 <p><strong>CustomCsrDemoPlugin类：</strong><br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomCsrDemoPlugin</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Plugin</span>[<span class="hljs-type">VexRiscv</span>]</span>{<br>  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">build</span></span>(pipeline: <span class="hljs-type">VexRiscv</span>): <span class="hljs-type">Unit</span> = {<br>    <span class="hljs-keyword">import</span> pipeline._<br>    <span class="hljs-keyword">import</span> pipeline.config._<br>    <br>    pipeline plug <span class="hljs-keyword">new</span> <span class="hljs-type">Area</span>{<br>      <span class="hljs-keyword">val</span> instructionCounter = <span class="hljs-type">Reg</span>(<span class="hljs-type">UInt</span>(<span class="hljs-number">32</span> bits))<br>      <span class="hljs-keyword">val</span> cycleCounter = <span class="hljs-type">Reg</span>(<span class="hljs-type">UInt</span>(<span class="hljs-number">32</span> bits))<br>      <br>      cycleCounter := cycleCounter + <span class="hljs-number">1</span><br>      when(writeBack.arbitration.isFiring) {<br>        instructionCounter := instructionCounter + <span class="hljs-number">1</span><br>      }<br>      <br>      <span class="hljs-keyword">val</span> csrService = pipeline.service(classOf[<span class="hljs-type">CsrInterface</span>])<br>      <br>      csrService.rw(<span class="hljs-number">0xB04</span>, instructionCounter)<br>      csrService.r(<span class="hljs-number">0xB05</span>, cycleCounter)<br>      <br>      csrService.onWrite(<span class="hljs-number">0xB06</span>){<br>        instructionCounter := <span class="hljs-number">0</span><br>      }<br>      <br>      csrService.onRead(<span class="hljs-number">0xB07</span>){<br>        instructionCounter := <span class="hljs-number">0x40000000</span><br>      }<br>    }<br>  }<br>}<br></code></pre></td></tr></table></figure><br>这个插件实现了以下功能：</p>
 <ol>
-<li><p>创建计数器寄存器：</p>
-<ul>
+<li>创建计数器寄存器：<ul>
 <li>instructionCounter：记录已执行的指令数</li>
 <li>cycleCounter：记录时钟周期数</li>
 </ul>
 </li>
-<li><p>计数器更新逻辑：</p>
-<ul>
+<li>计数器更新逻辑：<ul>
 <li>cycleCounter每个时钟周期加 1</li>
 <li>instructionCounter在写回阶段（writeBack）触发时加 1</li>
 </ul>
 </li>
-<li><p>CSR 映射：</p>
-<ul>
+<li>CSR 映射：<ul>
 <li>csrService.rw(0xB04, instructionCounter)：将 instructionCounter 映射到 0xB04 地址，可读写</li>
 <li>csrService.r(0xB05, cycleCounter)：将 cycleCounter 映射到 0xB05 地址，只读</li>
 </ul>
 </li>
-<li><p>特殊 CSR 行为：</p>
-<ul>
+<li>特殊 CSR 行为：<ul>
 <li>csrService.onWrite(0xB06)：当向 0xB06 地址写入时，重置 instructionCounter</li>
 <li>csrService.onRead(0xB07)：当从 0xB07 地址读取时，返回 0x40000000</li>
 </ul>
@@ -593,57 +582,48 @@ vi.RegFilePlugin 在 WriteBack（或配置的阶段）写回结果。
 </ol>
 <p><strong>CustomCsrDemoGpioPlugin类：</strong><br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomCsrDemoGpioPlugin</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Plugin</span>[<span class="hljs-type">VexRiscv</span>]</span>{<br>  <span class="hljs-keyword">var</span> gpio : <span class="hljs-type">TriStateArray</span> = <span class="hljs-literal">null</span><br>  <br>  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">setup</span></span>(pipeline: <span class="hljs-type">VexRiscv</span>): <span class="hljs-type">Unit</span> = {<br>    gpio = master(<span class="hljs-type">TriStateArray</span>(<span class="hljs-number">32</span> bits)).setName(<span class="hljs-string">"gpio"</span>)<br>  }<br>  <br>  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">build</span></span>(pipeline: <span class="hljs-type">VexRiscv</span>): <span class="hljs-type">Unit</span> = {<br>    <span class="hljs-keyword">import</span> pipeline._<br>    <span class="hljs-keyword">import</span> pipeline.config._<br>    <br>    pipeline plug <span class="hljs-keyword">new</span> <span class="hljs-type">Area</span>{<br>      <span class="hljs-keyword">val</span> writeReg, writeEnableReg = <span class="hljs-type">Reg</span>(<span class="hljs-type">Bits</span>(<span class="hljs-number">32</span> bits))<br>      <br>      <span class="hljs-keyword">val</span> csrService = pipeline.service(classOf[<span class="hljs-type">CsrInterface</span>])<br>      <br>      csrService.rw(<span class="hljs-number">0xB08</span>, writeReg)<br>      csrService.rw(<span class="hljs-number">0xB09</span>, writeEnableReg)<br>      csrService.r(<span class="hljs-number">0xB0A</span>, gpio.read)<br>      <br>      gpio.writeEnable := writeEnableReg<br>      gpio.write := writeReg<br>    }<br>  }<br>}<br></code></pre></td></tr></table></figure><br>这个插件实现了以下功能：</p>
 <ol>
-<li><p>GPIO 接口定义：</p>
-<ul>
+<li>GPIO 接口定义：<ul>
 <li>在setup方法中定义了一个 32 位的三态数组 GPIO 接口</li>
 <li>这个接口被设置为 master 类型，表示它是一个输出接口</li>
 </ul>
 </li>
-<li><p>GPIO 控制寄存器：</p>
-<ul>
+<li>GPIO 控制寄存器：<ul>
 <li>writeReg：存储要写入 GPIO 的值</li>
 <li>writeEnableReg：存储 GPIO 的写使能信号</li>
 </ul>
 </li>
-<li><p>CSR 映射：</p>
-<ul>
+<li>CSR 映射：<ul>
 <li>csrService.rw(0xB08, writeReg)：将 writeReg 映射到 0xB08 地址，可读写</li>
 <li>csrService.rw(0xB09, writeEnableReg)：将 writeEnableReg 映射到 0xB09 地址，可读写</li>
 <li>csrService.r(0xB0A, gpio.read)：将 gpio.read 映射到 0xB0A 地址，只读</li>
 </ul>
 </li>
-<li><p>GPIO 控制逻辑：</p>
-<ul>
+<li>GPIO 控制逻辑：<ul>
 <li>gpio.writeEnable := writeEnableReg：将 writeEnableReg 的值赋给 gpio.writeEnable</li>
 <li>gpio.write := writeReg：将 writeReg 的值赋给 gpio.write</li>
 </ul>
 </li>
 </ol>
 <h4 id="自定义CSR步骤"><a href="#自定义CSR步骤" class="headerlink" title="自定义CSR步骤"></a>自定义CSR步骤</h4><ol>
-<li><p>创建插件类：</p>
-<ul>
+<li>创建插件类：<ul>
 <li>继承自Plugin[VexRiscv]</li>
 <li>实现setup和 / 或build方法</li>
 </ul>
 </li>
-<li><p>定义自定义寄存器：</p>
-<ul>
+<li>定义自定义寄存器：<ul>
 <li>在插件中定义需要映射到 CSR 的寄存器</li>
 <li>定义寄存器的更新逻辑</li>
 </ul>
 </li>
-<li><p>获取 CsrInterface 服务：</p>
-<ul>
+<li>获取 CsrInterface 服务：<ul>
 <li>使用pipeline.service(classOf[CsrInterface])获取 CsrInterface 服务</li>
 </ul>
 </li>
-<li><p>映射 CSR 地址：</p>
-<ul>
+<li>映射 CSR 地址：<ul>
 <li>使用csrService.rw、csrService.r、csrService.onWrite或csrService.onRead方法映射 CSR 地址</li>
 </ul>
 </li>
-<li><p>配置 CPU 时添加插件：</p>
-<ul>
+<li>配置 CPU 时添加插件：<ul>
 <li>在 CPU 配置中添加自定义 CSR 插件</li>
 </ul>
 </li>
@@ -767,9 +747,9 @@ vi.RegFilePlugin 在 WriteBack（或配置的阶段）写回结果。
       
         <a href="/tags/RISC-V/" class="print-no-link">#RISC-V</a>
       
-        <a href="/tags/VexRiscv/" class="print-no-link">#VexRiscv</a>
-      
         <a href="/tags/Computer-Architecture/" class="print-no-link">#Computer Architecture</a>
+      
+        <a href="/tags/VexRiscv/" class="print-no-link">#VexRiscv</a>
       
         <a href="/tags/TLB-Translation-Lookaside-Buffer/" class="print-no-link">#TLB (Translation Lookaside Buffer)</a>
       

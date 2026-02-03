@@ -19,30 +19,25 @@
   <meta name="author" content="HUANGDAN">
   <meta name="keywords" content="">
   
-    <meta name="description" content="TLB Partitioning [Articles Reading]Secure and Scalable TLB Partitioning Against Timing Side-Channel Attacks 是一篇关于 TLB（Translation Lookaside Buffer）安全的论文，提出了一种安全且可扩展的 TLB 分区架构，用于防御基于时间的侧信道攻击。 研究背景TLB 的">
+    <meta name="description" content="TLB Attacks and Potential Defense StrategiesTLB 攻击原理与分类TLB 攻击主要利用 TLB 的访问模式、命中 &#x2F; 未命中时间差作为侧信道，通过观察 TLB 状态变化来推断敏感信息。根据攻击原理和目标，TLB 攻击可以分为以下几类： 基于时间侧信道的 TLB 攻击这类攻击利用 TLB 命中和未命中之间的时间差异来推断内存访问模式。攻击者通过测量访问特定">
 <meta property="og:type" content="article">
-<meta property="og:title" content="TLB Partitioning [Articles Reading]">
-<meta property="og:url" content="http://ruak.github.io/2026/02/02/TLB-Partitioning-Articles-Reading/index.html">
+<meta property="og:title" content="TLB Attacks and Potential Defense Strategies">
+<meta property="og:url" content="http://ruak.github.io/2026/02/03/TLB-Attacks-and-Potential-Defense-Strategies/index.html">
 <meta property="og:site_name" content="HUANGDAN">
-<meta property="og:description" content="TLB Partitioning [Articles Reading]Secure and Scalable TLB Partitioning Against Timing Side-Channel Attacks 是一篇关于 TLB（Translation Lookaside Buffer）安全的论文，提出了一种安全且可扩展的 TLB 分区架构，用于防御基于时间的侧信道攻击。 研究背景TLB 的">
+<meta property="og:description" content="TLB Attacks and Potential Defense StrategiesTLB 攻击原理与分类TLB 攻击主要利用 TLB 的访问模式、命中 &#x2F; 未命中时间差作为侧信道，通过观察 TLB 状态变化来推断敏感信息。根据攻击原理和目标，TLB 攻击可以分为以下几类： 基于时间侧信道的 TLB 攻击这类攻击利用 TLB 命中和未命中之间的时间差异来推断内存访问模式。攻击者通过测量访问特定">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://ruak.github.io/PostImg/TLB%20Partitioning.png">
-<meta property="og:image" content="http://ruak.github.io/PostImg/TLB%20Secure%20Domain%20Allocation%20Sequence.png">
-<meta property="og:image" content="http://ruak.github.io/PostImg/TLB%20Secure%20Domain%20De-allocation%20Sequence.png">
-<meta property="article:published_time" content="2026-02-02T06:25:24.000Z">
-<meta property="article:modified_time" content="2026-02-02T08:40:57.395Z">
+<meta property="article:published_time" content="2026-02-03T01:53:46.000Z">
+<meta property="article:modified_time" content="2026-02-03T01:59:43.445Z">
 <meta property="article:author" content="HUANGDAN">
-<meta property="article:tag" content="Articles Reading">
 <meta property="article:tag" content="Computer Architecture">
 <meta property="article:tag" content="Microarchitecture Security">
 <meta property="article:tag" content="Side-Channel Attack">
 <meta property="article:tag" content="TLB">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://ruak.github.io/PostImg/TLB%20Partitioning.png">
   
   
   
-  <title>TLB Partitioning [Articles Reading] - HUANGDAN</title>
+  <title>TLB Attacks and Potential Defense Strategies - HUANGDAN</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -332,7 +327,7 @@ mjx-container[display="true"] + br {
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="TLB Partitioning [Articles Reading]"></span>
+            <span id="subtitle" data-typed-text="TLB Attacks and Potential Defense Strategies"></span>
           
         </div>
 
@@ -348,8 +343,8 @@ mjx-container[display="true"] + br {
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2026-02-02 14:25" pubdate>
-          2026年2月2日 下午
+        <time datetime="2026-02-03 09:53" pubdate>
+          2026年2月3日 上午
         </time>
       </span>
     
@@ -360,7 +355,7 @@ mjx-container[display="true"] + br {
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.4k 字
+          1.1k 字
         
       </span>
     
@@ -371,7 +366,7 @@ mjx-container[display="true"] + br {
         
         
         
-          21 分钟
+          10 分钟
         
       </span>
     
@@ -423,398 +418,34 @@ mjx-container[display="true"] + br {
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">TLB Partitioning [Articles Reading]</h1>
+            <h1 id="seo-header">TLB Attacks and Potential Defense Strategies</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="TLB-Partitioning-Articles-Reading"><a href="#TLB-Partitioning-Articles-Reading" class="headerlink" title="TLB Partitioning [Articles Reading]"></a>TLB Partitioning [Articles Reading]</h1><p><a target="_blank" rel="noopener" href="https://link.springer.com/chapter/10.1007/978-981-95-3537-8_8">Secure and Scalable TLB Partitioning Against Timing Side-Channel Attacks</a> 是一篇关于 TLB（Translation Lookaside Buffer）安全的论文，提出了一种安全且可扩展的 TLB 分区架构，用于防御基于时间的侧信道攻击。</p>
-<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a>研究背景</h2><h3 id="TLB-的重要性与安全威胁"><a href="#TLB-的重要性与安全威胁" class="headerlink" title="TLB 的重要性与安全威胁"></a>TLB 的重要性与安全威胁</h3><p>TLB 是现代处理器中用于加速虚拟地址到物理地址转换的关键组件，它缓存最近使用的地址映射，显著提高了内存访问效率。然而，TLB 的共享特性使其成为侧信道攻击的潜在目标。</p>
-<h3 id="现有攻击技术"><a href="#现有攻击技术" class="headerlink" title="现有攻击技术"></a>现有攻击技术</h3><p>近年来，研究人员发现 TLB 可以作为时间侧信道攻击的载体：</p>
-<ul>
-<li><p><strong>TLBleed</strong>：利用 Intel 超线程技术中 TLB 的共享特性，成功恢复 EdDSA 和 RSA 私钥</p>
-</li>
-<li><p><strong><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/520204231">TLB;DR</a></strong>：通过逆向工程 TLB 结构，提高了攻击效率和速度</p>
-</li>
-<li><p><strong>GPU TLB 攻击</strong>：利用 GPU 中 SM（Streaming Multiprocessors）共享 L3 TLB 的特性，突破 NVIDIA MIG 的隔离保证</p>
-</li>
-</ul>
-<h3 id="现有防御方案的局限性"><a href="#现有防御方案的局限性" class="headerlink" title="现有防御方案的局限性"></a>现有防御方案的局限性</h3><p>目前针对 TLB 侧信道攻击的防御方案主要有两种：</p>
+                <h1 id="TLB-Attacks-and-Potential-Defense-Strategies"><a href="#TLB-Attacks-and-Potential-Defense-Strategies" class="headerlink" title="TLB Attacks and Potential Defense Strategies"></a>TLB Attacks and Potential Defense Strategies</h1><h2 id="TLB-攻击原理与分类"><a href="#TLB-攻击原理与分类" class="headerlink" title="TLB 攻击原理与分类"></a>TLB 攻击原理与分类</h2><p>TLB 攻击主要利用 TLB 的访问模式、命中 / 未命中时间差作为侧信道，通过观察 TLB 状态变化来推断敏感信息。根据攻击原理和目标，TLB 攻击可以分为以下几类：</p>
+<h3 id="基于时间侧信道的-TLB-攻击"><a href="#基于时间侧信道的-TLB-攻击" class="headerlink" title="基于时间侧信道的 TLB 攻击"></a>基于时间侧信道的 TLB 攻击</h3><p>这类攻击利用 TLB 命中和未命中之间的时间差异来推断内存访问模式。攻击者通过测量访问特定虚拟地址的时间，判断该地址是否在 TLB 中，从而推断受害者的内存访问行为。</p>
+<p><strong>TLBleed 攻击</strong>是一种典型的基于时间侧信道的 TLB 攻击，它扩展了 Prime+Probe 缓存侧信道攻击到 TLB。攻击者首先填充 TLB (Prime 阶段)，然后让受害者执行敏感操作，最后重新访问 TLB 条目并测量访问时间 (Probe 阶段)。通过比较访问时间的差异，攻击者可以推断受害者访问了哪些 TLB 条目，从而泄露敏感信息。</p>
+<p>攻击过程分为三个阶段：</p>
 <ol>
-<li><p><strong>分区（Partitioning）</strong>：如 SP-TLB，将 TLB 分为安全和非安全域，但静态分区导致资源利用率低</p>
-</li>
-<li><p><strong>随机化（Randomization）</strong>：如 RF-TLB 和 TLBCOAT，通过随机化 TLB 条目放置来破坏攻击，但随着攻击技术的发展可能失效</p>
-</li>
+<li>Prime 阶段：攻击者填充 TLB，将目标 TLB 条目加载到 TLB 中。</li>
+<li>Victim 阶段：受害者执行敏感操作，如签名生成，这会改变 TLB 状态。</li>
+<li>Probe 阶段：攻击者重新访问 TLB 条目并测量访问时间，通过比较访问时间的差异来推断受害者访问了哪些 TLB 条目。</li>
 </ol>
-<h2 id="核心设计思想"><a href="#核心设计思想" class="headerlink" title="核心设计思想"></a>核心设计思想</h2><p>论文提出了一种<strong>安全且可扩展的 TLB 分区架构</strong>，主要特点包括：</p>
+<h3 id="基于推测执行的-TLB-攻击"><a href="#基于推测执行的-TLB-攻击" class="headerlink" title="基于推测执行的 TLB 攻击"></a>基于推测执行的 TLB 攻击</h3><p>这类攻击结合推测执行和 TLB 侧信道，绕过系统的安全机制。攻击者利用处理器的推测执行特性，使处理器暂时执行不应该执行的指令，从而改变 TLB 状态，然后通过侧信道泄露敏感信息。</p>
+<p><strong>SysBumps 攻击</strong>是一种利用系统调用中的推测执行来绕过 macOS 的 KASLR 保护的攻击。攻击者利用 Spectre 类型的小工具，使非特权攻击者能够导致攻击者选择的内核地址的转换，导致 TLB 根据地址的有效性而改变。这允许构建一个攻击原语，绕过内核隔离，破坏 KASLR。</p>
+<p>攻击的关键步骤包括：</p>
 <ol>
-<li><p><strong>基于Set的分区</strong>：采用 set-based partitioning 而非 way-based partitioning，提高灵活性和效率</p>
-</li>
-<li><p><strong>动态资源复用</strong>：当安全域未被使用时，非安全进程可以临时使用这些资源，提高 TLB 利用率</p>
-</li>
-<li><p><strong>细粒度隔离</strong>：不仅在安全和非安全域之间实现隔离，还在不同安全进程之间实现隔离</p>
-</li>
+<li>利用 Spectre 类型的小工具，使处理器推测执行不应该执行的指令。</li>
+<li>通过推测执行，导致攻击者选择的内核地址的转换，改变 TLB 状态。</li>
+<li>利用 TLB 状态变化作为侧信道，推断内核地址信息，绕过 KASLR 保护。</li>
 </ol>
-<h2 id="详细设计"><a href="#详细设计" class="headerlink" title="详细设计"></a>详细设计</h2><h3 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h3><p><img src="/PostImg/TLB%20Partitioning.png" srcset="/img/loading.gif" lazyload alt="TLB Partitioning"></p>
-<p>TLB Set被分为两个域：</p>
-<ul>
-<li><p><strong>非安全域（NS）</strong>：供普通进程使用</p>
-</li>
-<li><p><strong>安全域（S）</strong>：保留给安全敏感进程使用</p>
-</li>
-</ul>
-<p>当没有安全进程活跃时，安全域可以被非安全进程使用，以最大化资源利用率。</p>
-<p>每个安全域根据其需求在安全域内分配一个或多个固定Sets。所有安全域都分配相同数量的Sets，以简化硬件设计。一旦分配确定，分配给每个安全域的Sets数量保持固定，无法动态更改。例如，在8-set TLB中，非安全域可分配4组，安全域分配4组，每个安全进程接收一组。每个安全域都由唯一的安全域标识符（SID）标识，该标识符存储在进程的PCB（进程控制块）中。进程可以根据需要请求自己的安全域。</p>
-<h3 id="分区查找表（Partition-Lookup-Table）"><a href="#分区查找表（Partition-Lookup-Table）" class="headerlink" title="分区查找表（Partition Lookup Table）"></a>分区查找表（Partition Lookup Table）</h3><p>为了高效管理 TLB Set的分配和隔离，引入了分区查找表，记录每个 TLB Set的分配状态：</p>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th>Set ID</th>
-<th>SID</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>4</td>
-<td>0</td>
-<td>Free</td>
-</tr>
-<tr>
-<td>5</td>
-<td>0</td>
-<td>Free</td>
-</tr>
-<tr>
-<td>6</td>
-<td>3</td>
-<td>Allocated</td>
-</tr>
-<tr>
-<td>7</td>
-<td>4</td>
-<td>Allocated</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>（在本例中，Set 0–3分配给非安全域，而Set 4–7分配给不同的安全域。Set 0–3属于非安全域，不包含在查找表中，因为只有安全Set需要跟踪分配和所有权。）</p>
-<ul>
-<li><p><strong>Set ID</strong>：TLB Set的唯一标识</p>
-</li>
-<li><p><strong>SID</strong>：安全域标识符，默认值为 0</p>
-</li>
-<li><p><strong>Status</strong>：Set的分配状态（Free/Allocated）</p>
-</li>
-</ul>
-<h3 id="TLB-查找机制"><a href="#TLB-查找机制" class="headerlink" title="TLB 查找机制"></a>TLB 查找机制</h3><h4 id="安全进程查找"><a href="#安全进程查找" class="headerlink" title="安全进程查找"></a>安全进程查找</h4><p>安全进程通过分区查找表使用其 SID 来访问分配给它的特定 TLB Set。</p>
-<h4 id="非安全进程查找"><a href="#非安全进程查找" class="headerlink" title="非安全进程查找"></a>非安全进程查找</h4><p>非安全进程采用并行查找策略：</p>
-<ul>
-<li><p>同时探测安全Set和对应的非安全Set</p>
-</li>
-<li><p>如果安全Set未被分配，则两个Set都会被检查</p>
-</li>
-<li><p>如果安全Set已被分配，则只检查非安全Set</p>
-</li>
-</ul>
-<p>当TLB未命中时，机制会检查一个安全Set及其对应的非安全Set中是否有空闲的条目（假设安全Set未被分配）。如果两组都占用，则随机选出一组替换。</p>
-<h3 id="安全域分配与释放"><a href="#安全域分配与释放" class="headerlink" title="安全域分配与释放"></a>安全域分配与释放</h3><h4 id="分配过程"><a href="#分配过程" class="headerlink" title="分配过程"></a>分配过程</h4><ol>
-<li><p>当安全进程启动并需要 TLB Set时，系统从安全域中选择一个 TLB Set</p>
-</li>
-<li><p>在分配前，刷新所选Set的内容，防止信息泄露</p>
-</li>
-<li><p>如果所有安全 TLB Set已被分配，则随机选择一个已分配的安全Set，刷新其内容并重新分配</p>
-</li>
-</ol>
-<p><img src="/PostImg/TLB%20Secure%20Domain%20Allocation%20Sequence.png" srcset="/img/loading.gif" lazyload alt="TLB Secure Domain Allocation Sequence"></p>
-<h4 id="释放过程"><a href="#释放过程" class="headerlink" title="释放过程"></a>释放过程</h4><ol>
-<li><p>当安全域完成执行后，操作系统更新分区查找表，将这些Set标记为未分配</p>
-</li>
-<li><p>刷新Set内容，允许释放的 TLB Set被新的安全域或非安全进程重用</p>
-</li>
-</ol>
-<p><img src="/PostImg/TLB%20Secure%20Domain%20De-allocation%20Sequence.png" srcset="/img/loading.gif" lazyload alt="TLB Secure Domain De-allocation Sequence"></p>
-<h2 id="安全性分析"><a href="#安全性分析" class="headerlink" title="安全性分析"></a>安全性分析</h2><h3 id="攻击前提的破坏"><a href="#攻击前提的破坏" class="headerlink" title="攻击前提的破坏"></a>攻击前提的破坏</h3><p>TLB 时间侧信道攻击依赖两个关键条件：</p>
-<ol>
-<li><p>攻击者和受害者必须共享相同的 TLB Set</p>
-</li>
-<li><p>攻击者能够观察受害者内存访问的时间差异</p>
-</li>
-</ol>
-<p>论文的设计通过严格的Set级隔离直接破坏了这些前提条件：</p>
-<ul>
-<li><p>攻击者被限制在自己的域内，无法访问或驱逐受害者的 TLB 条目</p>
-</li>
-<li><p>攻击者无法观察与受害者 TLB 命中或错过相关的任何时间信息</p>
-</li>
-</ul>
-<h3 id="代表性攻击场景分析"><a href="#代表性攻击场景分析" class="headerlink" title="代表性攻击场景分析"></a>代表性攻击场景分析</h3><h4 id="场景-1：攻击者在非安全域，受害者在安全域"><a href="#场景-1：攻击者在非安全域，受害者在安全域" class="headerlink" title="场景 1：攻击者在非安全域，受害者在安全域"></a>场景 1：攻击者在非安全域，受害者在安全域</h4><ul>
-<li><p>攻击者的访问被限制在非安全 TLB Set</p>
-</li>
-<li><p>受害者的访问被限制在安全Set</p>
-</li>
-<li><p>攻击者无法驱逐或监控受害者的 TLB 条目，时间攻击不可行</p>
-</li>
-</ul>
-<h4 id="场景-2：攻击者和受害者在不同的安全域"><a href="#场景-2：攻击者和受害者在不同的安全域" class="headerlink" title="场景 2：攻击者和受害者在不同的安全域"></a>场景 2：攻击者和受害者在不同的安全域</h4><ul>
-<li><p>每个都被分配了专属的 TLB Set</p>
-</li>
-<li><p>相同的隔离保证适用</p>
-</li>
-<li><p>攻击者可能推断的唯一信息是安全 TLB Set是否已分配，但这种元信息过于粗粒度，不足以泄露敏感数据</p>
-</li>
-</ul>
-<h3 id="替换策略对安全性的影响"><a href="#替换策略对安全性的影响" class="headerlink" title="替换策略对安全性的影响"></a>替换策略对安全性的影响</h3><p>设计确保 TLB 替换策略的选择不会引入额外的安全风险：</p>
-<ul>
-<li><p>所有替换操作严格限制在分配给每个安全域的Set内</p>
-</li>
-<li><p>无论使用何种替换策略，TLB 条目的驱逐和插入都只在相应域的分配Set内执行</p>
-</li>
-<li><p>跨域替换被分区机制严格禁止</p>
-</li>
-</ul>
-<h2 id="实现与评估"><a href="#实现与评估" class="headerlink" title="实现与评估"></a>实现与评估</h2><h3 id="实验设置"><a href="#实验设置" class="headerlink" title="实验设置"></a>实验设置</h3><h4 id="功能验证"><a href="#功能验证" class="headerlink" title="功能验证"></a>功能验证</h4><ul>
-<li><p>修改 Linux 内核（x86 架构）以支持基本的 SID 管理</p>
-</li>
-<li><p>实现自定义系统调用，原子地分配和分配新的 SID 给调用进程</p>
-</li>
-<li><p>使用 QEMU 进行基于仿真的测试</p>
-</li>
-</ul>
-<h4 id="Gem5-模拟"><a href="#Gem5-模拟" class="headerlink" title="Gem5 模拟"></a>Gem5 模拟</h4><ul>
-<li><p>扩展 gem5 x86 TLB 实现，添加两种配置：</p>
-<ol>
-<li><p>组相联 TLB</p>
-</li>
-<li><p>安全且可扩展的 TLB 设计</p>
-</li>
-</ol>
-</li>
-<li><p>配置为 16 组、4 路组相联 TLB，反映典型的现代处理器配置</p>
-</li>
-</ul>
-<h3 id="性能评估"><a href="#性能评估" class="headerlink" title="性能评估"></a>性能评估</h3><h4 id="系统调用开销"><a href="#系统调用开销" class="headerlink" title="系统调用开销"></a>系统调用开销</h4><p>SID 分配系统调用的开销与标准系统调用相当：</p>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th>系统调用</th>
-<th>平均延迟（周期）</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>SID 分配</td>
-<td>3359</td>
-</tr>
-<tr>
-<td>getpid()</td>
-<td>3234</td>
-</tr>
-<tr>
-<td>clock_gettime()</td>
-<td>2212</td>
-</tr>
-<tr>
-<td>fork()</td>
-<td>4288897</td>
-</tr>
-</tbody>
-</table>
-</div>
-<h4 id="安全域性能影响"><a href="#安全域性能影响" class="headerlink" title="安全域性能影响"></a>安全域性能影响</h4><p>不同安全域大小下的 TLB 未命中率：</p>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th>基准测试</th>
-<th>8 组</th>
-<th>4 组</th>
-<th>2 组</th>
-<th>1 组</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>helloworld</td>
-<td>0.61%</td>
-<td>0.63%</td>
-<td>1.63%</td>
-<td>7.31%</td>
-</tr>
-<tr>
-<td>sha256</td>
-<td>&lt;0.01%</td>
-<td>&lt;0.01%</td>
-<td>&lt;0.01%</td>
-<td>&lt;0.01%</td>
-</tr>
-<tr>
-<td>aes</td>
-<td>0.01%</td>
-<td>0.01%</td>
-<td>0.02%</td>
-<td>0.10%</td>
-</tr>
-<tr>
-<td>md5</td>
-<td>0.24%</td>
-<td>0.25%</td>
-<td>0.70%</td>
-<td>2.79%</td>
-</tr>
-<tr>
-<td>blowfish</td>
-<td>&lt;0.01%</td>
-<td>&lt;0.01%</td>
-<td>0.01%</td>
-<td>0.03%</td>
-</tr>
-<tr>
-<td>rsa</td>
-<td>&lt;0.01%</td>
-<td>&lt;0.01%</td>
-<td>&lt;0.01%</td>
-<td>&lt;0.01%</td>
-</tr>
-</tbody>
-</table>
-</div>
-<h4 id="非安全域性能影响"><a href="#非安全域性能影响" class="headerlink" title="非安全域性能影响"></a>非安全域性能影响</h4><p>不同非安全域大小下的 TLB 未命中率：</p>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th>基准测试</th>
-<th>全部 NS 域</th>
-<th>1/2 NS 域</th>
-<th>1/4 NS 域</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>blackholes</td>
-<td>0.03%</td>
-<td>0.04%</td>
-<td>0.04%</td>
-</tr>
-<tr>
-<td>bodytrack</td>
-<td>0.49%</td>
-<td>0.73%</td>
-<td>1.19%</td>
-</tr>
-<tr>
-<td>canneal</td>
-<td>2.48%</td>
-<td>4.21%</td>
-<td>8.82%</td>
-</tr>
-<tr>
-<td>fluidanimate</td>
-<td>0.03%</td>
-<td>0.03%</td>
-<td>0.05%</td>
-</tr>
-<tr>
-<td>raytrace</td>
-<td>0.04%</td>
-<td>0.04%</td>
-<td>0.04%</td>
-</tr>
-<tr>
-<td>streamcluster</td>
-<td>0.72%</td>
-<td>0.98%</td>
-<td>1.21%</td>
-</tr>
-<tr>
-<td>swaptions</td>
-<td>0.03%</td>
-<td>0.03%</td>
-<td>0.12%</td>
-</tr>
-</tbody>
-</table>
-</div>
-<h3 id="可扩展性比较"><a href="#可扩展性比较" class="headerlink" title="可扩展性比较"></a>可扩展性比较</h3><div class="table-container">
-<table>
-<thead>
-<tr>
-<th>特性</th>
-<th>SP/RF-TLB</th>
-<th>TLBCOAT</th>
-<th>我们的设计</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>多安全进程</td>
-<td>✗</td>
-<td>✓</td>
-<td>✓</td>
-</tr>
-<tr>
-<td>安全集重用</td>
-<td>✗</td>
-<td>✓</td>
-<td>✓</td>
-</tr>
-<tr>
-<td>严格隔离</td>
-<td>✓</td>
-<td>✗</td>
-<td>✓</td>
-</tr>
-<tr>
-<td>利用率</td>
-<td>低</td>
-<td>中</td>
-<td>高</td>
-</tr>
-<tr>
-<td>可扩展性</td>
-<td>低</td>
-<td>中</td>
-<td>高</td>
-</tr>
-</tbody>
-</table>
-</div>
-<h2 id="硬件要求"><a href="#硬件要求" class="headerlink" title="硬件要求"></a>硬件要求</h2><p>设计引入的硬件开销最小：</p>
-<ul>
-<li><p>主要硬件要求是一个小的分区查找表，跟踪每个 TLB Set的分配状态和所有权</p>
-</li>
-<li><p>可以使用小型 SRAM 或寄存器阵列高效实现</p>
-</li>
-<li><p>查找表驻留在硬件中，不映射到用户空间，只有操作系统可以访问或修改</p>
-</li>
-</ul>
-<h2 id="局限性与讨论"><a href="#局限性与讨论" class="headerlink" title="局限性与讨论"></a>局限性与讨论</h2><h3 id="安全域分区的局限性"><a href="#安全域分区的局限性" class="headerlink" title="安全域分区的局限性"></a>安全域分区的局限性</h3><ol>
-<li><p>分配不适应实际进程需求，可能导致配置不足或过度配置</p>
-</li>
-<li><p>安全进程的数量受到 TLB Set数量的限制</p>
-</li>
-<li><p>假设只有一小部分进程需要安全域，这与典型使用场景一致</p>
-</li>
-</ol>
-<h3 id="对其他架构和-GPU-的适用性"><a href="#对其他架构和-GPU-的适用性" class="headerlink" title="对其他架构和 GPU 的适用性"></a>对其他架构和 GPU 的适用性</h3><ul>
-<li><p>虽然实验集中在 x86 架构，但基于Set的分区核心思想在很大程度上与架构无关，可以适应其他 CPU 架构</p>
-</li>
-<li><p>适应 GPU 更具挑战性，需要支持更多并发域并针对 GPU 特定的性能要求进行优化</p>
-</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>论文提出了一种可扩展的基于分区的 TLB 架构，用于防御 TLB 时间侧信道攻击。通过支持多个安全进程之间的分区，并允许非安全进程在安全域未使用时利用 TLB 资源，设计实现了强大的安全保证和高资源利用率。</p>
-<p>实验结果表明，该架构在提供强大安全保证的同时，开销较低。这项工作强调了架构隔离在缓解微架构侧信道中的重要性，并为现代处理器中安全高效的 TLB 管理提供了实用解决方案。</p>
-<h2 id="主要贡献"><a href="#主要贡献" class="headerlink" title="主要贡献"></a>主要贡献</h2><ol>
-<li><p>总结了 CPU 和 GPU 中 TLB 的安全弱点，指出共享结构和有限隔离使其容易受到基于时间的侧信道攻击</p>
-</li>
-<li><p>提出了一种可扩展的 TLB 分区设计，实现安全和非安全域之间以及不同安全进程之间的细粒度隔离，有效缓解基于 TLB 的时间侧信道攻击</p>
-</li>
-<li><p>在真实 Linux 系统和 gem5 模拟器上实现了设计，使用标准基准测试评估了性能，证明该方法比现有解决方案具有更好的可扩展性，同时保持低开销</p>
-</li>
-</ol>
+<h3 id="基于地址空间布局随机化-KASLR-绕过的-TLB-攻击"><a href="#基于地址空间布局随机化-KASLR-绕过的-TLB-攻击" class="headerlink" title="基于地址空间布局随机化 (KASLR) 绕过的 TLB 攻击"></a>基于地址空间布局随机化 (KASLR) 绕过的 TLB 攻击</h3><p>这类攻击利用 TLB 侧信道来绕过 KASLR 保护，获取内核或其他敏感代码的地址信息。</p>
+<p><strong>EntryBleed 攻击</strong>是一种针对 Linux 系统的 KASLR 绕过攻击。攻击者利用微架构侧信道和 KPTI 缓解措施中的设计缺陷，实现对 KASLR 的通用绕过。攻击利用了系统调用和中断处理页面在 KPTI 隔离中的豁免，通过观察 TLB 状态变化来推断内核地址信息。</p>
+<h2 id="TLB-攻击归因"><a href="#TLB-攻击归因" class="headerlink" title="TLB 攻击归因"></a>TLB 攻击归因</h2><h3 id="确定性-Determinism"><a href="#确定性-Determinism" class="headerlink" title="确定性(Determinism)"></a>确定性(Determinism)</h3><p>确定性是指微架构优化在相同条件下以相同方式触发，导致可预测的微架构状态转换和时间变化。在 TLB 中，确定性表现为 TLB 条目在相同条件下以相同方式被加载、替换和驱逐，使得攻击者能够预测 TLB 状态变化。</p>
+<h3 id="共享-Sharing"><a href="#共享-Sharing" class="headerlink" title="共享 (Sharing)"></a>共享 (Sharing)</h3><p>共享是指微架构资源状态在受害者和攻击者之间共享，允许创建侧信道。在多核处理器和 SMT 处理器中，TLB 资源在不同核心或线程之间共享，使得攻击者能够通过观察共享 TLB 资源的状态变化来推断受害者的内存访问行为。</p>
+<h3 id="访问违规-Access-Violation"><a href="#访问违规-Access-Violation" class="headerlink" title="访问违规 (Access Violation)"></a>访问违规 (Access Violation)</h3><p>访问违规是指微架构资源允许访问超出程序保护域的秘密数据。在 TLB 攻击中，攻击者能够通过推测执行或其他方式，访问超出其权限范围的内存地址，从而改变 TLB 状态，泄露敏感信息。</p>
+<h3 id="信息流-Information-Flow"><a href="#信息流-Information-Flow" class="headerlink" title="信息流 (Information Flow)"></a>信息流 (Information Flow)</h3><p>信息流是指通过微架构状态交换信息。在 TLB 攻击中，攻击者能够通过观察 TLB 状态变化，获取受害者的内存访问模式，从而推断敏感信息。</p>
 
                 
               </div>
@@ -857,16 +488,6 @@ mjx-container[display="true"] + br {
       </span>
     
   
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Articles-Reading/" class="category-chain-item">Articles Reading</a>
-  
-  
-
-      </span>
-    
-  
 </span>
 
     </div>
@@ -883,8 +504,6 @@ mjx-container[display="true"] + br {
       
         <a href="/tags/Computer-Architecture/" class="print-no-link">#Computer Architecture</a>
       
-        <a href="/tags/Articles-Reading/" class="print-no-link">#Articles Reading</a>
-      
     </div>
   
 </div>
@@ -895,8 +514,8 @@ mjx-container[display="true"] + br {
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>TLB Partitioning [Articles Reading]</div>
-      <div>http://ruak.github.io/2026/02/02/TLB-Partitioning-Articles-Reading/</div>
+      <div>TLB Attacks and Potential Defense Strategies</div>
+      <div>http://ruak.github.io/2026/02/03/TLB-Attacks-and-Potential-Defense-Strategies/</div>
     </div>
     <div class="license-meta">
       
@@ -908,7 +527,7 @@ mjx-container[display="true"] + br {
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2026年2月2日</div>
+          <div>2026年2月3日</div>
         </div>
       
       
@@ -940,18 +559,12 @@ mjx-container[display="true"] + br {
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2026/02/03/TLB-Attacks-and-Potential-Defense-Strategies/" title="TLB Attacks and Potential Defense Strategies">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">TLB Attacks and Potential Defense Strategies</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2026/01/29/Litex-VexRiscv-%E9%83%A8%E7%BD%B2Linux%20Soc%E8%87%B3FPGA%E6%9D%BF%E4%B8%8A/" title="Litex-VexRiscv 部署Linux Soc至FPGA板上">
-                        <span class="hidden-mobile">Litex-VexRiscv 部署Linux Soc至FPGA板上</span>
+                      <a href="/2026/02/02/TLB-Partitioning-Articles-Reading/" title="TLB Partitioning [Articles Reading]">
+                        <span class="hidden-mobile">TLB Partitioning [Articles Reading]</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -974,7 +587,7 @@ mjx-container[display="true"] + br {
         var options = Object.assign(
           {"clientID":"Ov23liShVrg2q1cvgy8e","clientSecret":"c799aabf17670a714bab29a1ec1fde855622bcd6","repo":"hexo-fluid-gitalk","owner":"Ruak","admin":["Ruak"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://vercel.prohibitorum.top/github_access_token"},
           {
-            id: '52f5a72d6f145dacd500ea2f53a1df0c'
+            id: '32c5bd87b12add565aa211b347c6a142'
           }
         )
         var gitalk = new Gitalk(options);
