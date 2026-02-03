@@ -1,0 +1,1091 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/milkcat.png">
+  <link rel="icon" href="/img/milkcat.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="HUANGDAN">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Litex-VexRiscv 编译SoCLitex 框架通过以下流程调用 VexRiscv 源码并编译成 SoC： Text1make.py → VexRiscvSMP (core.py) → VexRiscvSmpLitexCluster.scala → Verilog生成 → FPGA比特流 流程分析入口make.py 是整个构建过程的入口点，负责： 123456789101112131415">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Litex-VexRiscv 编译SoC">
+<meta property="og:url" content="http://ruak.github.io/2026/02/03/Litex-VexRiscv-%E7%BC%96%E8%AF%91SoC/index.html">
+<meta property="og:site_name" content="HUANGDAN">
+<meta property="og:description" content="Litex-VexRiscv 编译SoCLitex 框架通过以下流程调用 VexRiscv 源码并编译成 SoC： Text1make.py → VexRiscvSMP (core.py) → VexRiscvSmpLitexCluster.scala → Verilog生成 → FPGA比特流 流程分析入口make.py 是整个构建过程的入口点，负责： 123456789101112131415">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-02-03T08:32:35.000Z">
+<meta property="article:modified_time" content="2026-02-03T08:59:59.930Z">
+<meta property="article:author" content="HUANGDAN">
+<meta property="article:tag" content="Computer Architecture">
+<meta property="article:tag" content="FPGA">
+<meta property="article:tag" content="Litex">
+<meta property="article:tag" content="RISC-V">
+<meta property="article:tag" content="VexRiscv">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Litex-VexRiscv 编译SoC - HUANGDAN</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ruak.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":50,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>HUANGDAN</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true data-random-banner='/img/random/bochi.png,/img/random/ChainsawMan.png,/img/random/charlotte.png,/img/random/denmension.png,/img/random/future.png,/img/random/pink.png,/img/random/purple.png,/img/random/rose.png,/img/random/short.png,/img/random/SNAFFUR.png,/img/random/thick.png,/img/random/white.png'
+     style="background: url('/img/random/bochi.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Litex-VexRiscv 编译SoC"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        HUANGDAN
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-02-03 16:32" pubdate>
+          2026年2月3日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          20 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+
+  <script>
+    (function() {
+      var banner = document.getElementById('banner');
+      if (!banner) return;
+      var list = banner.getAttribute('data-random-banner');
+      if (!list) return;
+      list = list.split(',').filter(Boolean);
+      if (list.length === 0) return;
+      var pick = list[Math.floor(Math.random() * list.length)];
+      banner.style.backgroundImage = "url('" + pick + "')";
+    })();
+  </script>
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Litex-VexRiscv 编译SoC</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Litex-VexRiscv-编译SoC"><a href="#Litex-VexRiscv-编译SoC" class="headerlink" title="Litex-VexRiscv 编译SoC"></a>Litex-VexRiscv 编译SoC</h1><p>Litex 框架通过以下流程调用 VexRiscv 源码并编译成 SoC：</p>
+<figure class="highlight plaintext"><figcaption><span>Text</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Plain">make.py → VexRiscvSMP (core.py) → VexRiscvSmpLitexCluster.scala → Verilog生成 → FPGA比特流<br></code></pre></td></tr></table></figure>
+<h2 id="流程分析"><a href="#流程分析" class="headerlink" title="流程分析"></a>流程分析</h2><h3 id="入口"><a href="#入口" class="headerlink" title="入口"></a>入口</h3><p><a target="_blank" rel="noopener" href="https://github.com/litex-hub/linux-on-litex-vexriscv/blob/master/make.py">make.py</a> 是整个构建过程的入口点，负责：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 1. 导入必要模块</span><br><span class="hljs-keyword">from</span> litex.soc.cores.cpu.vexriscv_smp <span class="hljs-keyword">import</span> VexRiscvSMP<br><span class="hljs-keyword">from</span> soc_linux <span class="hljs-keyword">import</span> SoCLinux<br><br><span class="hljs-comment"># 2. 解析命令行参数</span><br>parser = argparse.ArgumentParser(...)<br>VexRiscvSMP.args_fill(parser)  <span class="hljs-comment"># 填充VexRiscv相关参数</span><br>args = parser.parse_args()<br><br><span class="hljs-comment"># 3. 创建SoC实例</span><br>soc = SoCLinux(board.soc_cls, **soc_kwargs)<br><br><span class="hljs-comment"># 4. 使用Builder构建</span><br>builder = Builder(soc,<br>    output_dir   = os.path.join(<span class="hljs-string">"build"</span>, board_name),<br>    bios_console = <span class="hljs-string">"lite"</span>,<br>    csr_json     = os.path.join(build_dir, <span class="hljs-string">"csr.json"</span>),<br>    csr_csv      = os.path.join(build_dir, <span class="hljs-string">"csr.csv"</span>)<br>)<br><br><span class="hljs-comment"># 5. 执行构建</span><br>builder.build(run=args.build, build_name=board_name)<br></code></pre></td></tr></table></figure>
+<h3 id="Litex-封装"><a href="#Litex-封装" class="headerlink" title="Litex 封装"></a>Litex 封装</h3><p><a target="_blank" rel="noopener" href="https://github.com/enjoy-digital/litex/blob/master/litex/soc/cores/cpu/vexriscv_smp/core.py">core.py</a> VexRiscvSMP 类是 Litex 对 VexRiscv 的封装，核心功能：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">VexRiscvSMP</span>(<span class="hljs-title class_ inherited__">CPU</span>):<br>    <span class="hljs-comment"># 配置参数</span><br>    cpu_count = <span class="hljs-number">1</span><br>    dcache_size = <span class="hljs-number">4096</span><br>    icache_size = <span class="hljs-number">4096</span><br>    dtlb_size = <span class="hljs-number">4</span>  <span class="hljs-comment"># TLB大小配置</span><br>    itlb_size = <span class="hljs-number">4</span><br>    ...<br>    <br>    <span class="hljs-comment"># 关键方法：生成Verilog网表</span><br><span class="hljs-meta">    @staticmethod</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">generate_netlist</span>():<br>        ...<br>        <span class="hljs-comment"># 构建sbt命令</span><br>        cmd = <span class="hljs-string">'cd {path} &amp;&amp; sbt "runMain vexriscv.demo.smp.VexRiscvLitexSmpClusterCmdGen {args}"'</span><br>        <br>        <span class="hljs-comment"># 调用SpinalHDL生成Verilog</span><br>        subprocess.check_call(cmd, shell=<span class="hljs-literal">True</span>)<br>    <br>    ...<br><br>    <span class="hljs-comment"># 添加Verilog源文件到构建流程</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">add_sources</span>(<span class="hljs-params">self, platform</span>):<br>        ...<br>        <span class="hljs-comment"># 添加生成的集群Verilog文件</span><br>        cluster_filename = os.path.join(vdir, <span class="hljs-variable language_">self</span>.cluster_name + <span class="hljs-string">".v"</span>)<br>        platform.add_source(cluster_filename, <span class="hljs-string">"verilog"</span>)<br>        ...<br>    <br>    ...<br><br></code></pre></td></tr></table></figure>
+<h3 id="VexRiscv-核心实现"><a href="#VexRiscv-核心实现" class="headerlink" title="VexRiscv 核心实现"></a>VexRiscv 核心实现</h3><p><a target="_blank" rel="noopener" href="https://github.com/SpinalHDL/VexRiscv/blob/master/src/main/scala/vexriscv/demo/smp/VexRiscvSmpLitexCluster.scala">VexRiscvSmpLitexCluster.scala</a> 是用 SpinalHDL 编写的 VexRiscv SMP 集群实现：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">VexRiscvLitexSmpCluster</span>(<span class="hljs-params">p : <span class="hljs-type">VexRiscvLitexSmpClusterParameter</span></span>) </span><br>    <span class="hljs-keyword">extends</span> <span class="hljs-type">VexRiscvSmpClusterWithPeripherals</span>(p.cluster) {<br>    <br>    <span class="hljs-comment">// 互连结构配置</span><br>    <span class="hljs-keyword">val</span> iArbiter = <span class="hljs-type">BmbBridgeGenerator</span>()<br>    <span class="hljs-keyword">val</span> iBridge = !p.wishboneMemory generate <span class="hljs-type">BmbToLiteDramGenerator</span>(p.liteDramMapping)<br>    <span class="hljs-keyword">val</span> dBridge = !p.wishboneMemory generate <span class="hljs-type">BmbToLiteDramGenerator</span>(p.liteDramMapping)<br>    <br>    <span class="hljs-comment">// 总线连接</span><br>    <span class="hljs-keyword">for</span>(core &lt;- cores) interconnect.addConnection(core.cpu.iBus -&gt; <span class="hljs-type">List</span>(iArbiter.bmb))<br>    ...<br>    <br>    <span class="hljs-comment">// FPU配置（如果启用）</span><br>    <span class="hljs-keyword">val</span> fpu = p.cluster.fpu generate { <br>        <span class="hljs-keyword">for</span>(group &lt;- fpuGroups) <span class="hljs-keyword">yield</span> <span class="hljs-keyword">new</span> <span class="hljs-type">Area</span>{<br>            <span class="hljs-keyword">val</span> extraStage = group.size &gt; <span class="hljs-number">2</span> <span class="hljs-comment">// 如果FPU核心数大于2，启用额外阶段</span><br>            <span class="hljs-comment">// FPU核心实例化</span><br>            <span class="hljs-keyword">val</span> logic = <span class="hljs-type">Handle</span>{<br>                <span class="hljs-keyword">new</span> <span class="hljs-type">FpuCore</span>(<br>                    portCount = group.size,<br>                    p = <span class="hljs-type">FpuParameter</span>(<br>                        withDouble = <span class="hljs-literal">true</span>,<br>                        asyncRegFile = <span class="hljs-literal">false</span>,<br>                        schedulerM2sPipe = extraStage<br>                    )<br>                )<br>            }<br><br>            ...<br>        }<br>    }<br><br>    ...<br>}<br><br><span class="hljs-comment">// 命令行生成器</span><br><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">VexRiscvLitexSmpClusterCmdGen</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">App</span> </span>{<br>    ...<br>    <span class="hljs-comment">// 解析命令行参数</span><br>    assert(<span class="hljs-keyword">new</span> scopt.<span class="hljs-type">OptionParser</span>[<span class="hljs-type">Unit</span>](<span class="hljs-string">"VexRiscvLitexSmpClusterCmdGen"</span>) {<br>        opt[<span class="hljs-type">String</span>](<span class="hljs-string">"cpu-count"</span>) action { (v, c) =&gt; cpuCount = v.toInt }<br>        opt[<span class="hljs-type">String</span>](<span class="hljs-string">"dtlb-size"</span>) action { (v, c) =&gt; dTlbSize = v.toInt }<br>        opt[<span class="hljs-type">String</span>](<span class="hljs-string">"itlb-size"</span>) action { (v, c) =&gt; iTlbSize = v.toInt }<br>        <span class="hljs-comment">// 其他参数...</span><br>    }.parse(args, <span class="hljs-type">Unit</span>).nonEmpty)<br><br>    ...<br>    <br>    <span class="hljs-comment">// 生成Verilog</span><br>    <span class="hljs-keyword">val</span> genConfig = <span class="hljs-type">SpinalConfig</span>(targetDirectory = netlistDirectory, inlineRom = <span class="hljs-literal">true</span>)<br>    genConfig.generateVerilog(dutGen.setDefinitionName(netlistName))<br>}<br></code></pre></td></tr></table></figure>
+<h3 id="添加自定义指令"><a href="#添加自定义指令" class="headerlink" title="添加自定义指令"></a>添加自定义指令</h3><h4 id="SimdAddPlugin示例"><a href="#SimdAddPlugin示例" class="headerlink" title="SimdAddPlugin示例"></a>SimdAddPlugin示例</h4><p>以下是一个简单插件的示例，它添加了一个简单的SIMD_ADD指令。</p>
+<p>SimdAddPlugin 实现了一个 SIMD 加法指令，将 32 位寄存器分为 4 个 8 位通道，分别进行加法运算：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-keyword">import</span> spinal.core._<br><span class="hljs-keyword">import</span> vexriscv.plugin.<span class="hljs-type">Plugin</span><br><span class="hljs-keyword">import</span> vexriscv.{<span class="hljs-type">Stageable</span>, <span class="hljs-type">DecoderService</span>, <span class="hljs-type">VexRiscv</span>}<br><br><span class="hljs-comment">//This plugin example will add a new instruction named SIMD_ADD which does the following:</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">//RD : Regfile Destination, RS : Regfile Source</span><br><span class="hljs-comment">//RD( 7 downto  0) = RS1( 7 downto  0) + RS2( 7 downto  0)</span><br><span class="hljs-comment">//RD(16 downto  8) = RS1(16 downto  8) + RS2(16 downto  8)</span><br><span class="hljs-comment">//RD(23 downto 16) = RS1(23 downto 16) + RS2(23 downto 16)</span><br><span class="hljs-comment">//RD(31 downto 24) = RS1(31 downto 24) + RS2(31 downto 24)</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">//Instruction encoding :</span><br><span class="hljs-comment">//0000011----------000-----0110011</span><br><span class="hljs-comment">//funct7 rs2 rs1 funct3 rd opcode</span><br><span class="hljs-comment">//       |RS2||RS1|   |RD |</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">//Note :  RS1, RS2, RD positions follow the RISC-V spec and are common for all instruction of the ISA</span><br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SimdAddPlugin</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Plugin</span>[<span class="hljs-type">VexRiscv</span>]</span>{<br>  <span class="hljs-comment">//Define the concept of IS_SIMD_ADD signals, which specify if the current instruction is destined for this plugin</span><br>  <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">IS_SIMD_ADD</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Stageable</span>(<span class="hljs-params"><span class="hljs-type">Bool</span></span>)</span><br><br>  <span class="hljs-comment">//Callback to setup the plugin and ask for different services</span><br>  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">setup</span></span>(pipeline: <span class="hljs-type">VexRiscv</span>): <span class="hljs-type">Unit</span> = {<br>    <span class="hljs-keyword">import</span> pipeline.config._<br><br>    <span class="hljs-comment">//Retrieve the DecoderService instance</span><br>    <span class="hljs-keyword">val</span> decoderService = pipeline.service(classOf[<span class="hljs-type">DecoderService</span>])<br><br>    <span class="hljs-comment">//Specify the IS_SIMD_ADD default value when instructions are decoded</span><br>    decoderService.addDefault(<span class="hljs-type">IS_SIMD_ADD</span>, <span class="hljs-type">False</span>)<br><br>    <span class="hljs-comment">//Specify the instruction decoding which should be applied when the instruction matches the 'key' parttern</span><br>    decoderService.add(<br>      <span class="hljs-comment">//Bit pattern of the new SIMD_ADD instruction</span><br>      key = <span class="hljs-type">M</span><span class="hljs-string">"0000011----------000-----0110011"</span>,<br><br>      <span class="hljs-comment">//Decoding specification when the 'key' pattern is recognized in the instruction</span><br>      <span class="hljs-type">List</span>(<br>        <span class="hljs-type">IS_SIMD_ADD</span>              -&gt; <span class="hljs-type">True</span>,<br>        <span class="hljs-type">REGFILE_WRITE_VALID</span>      -&gt; <span class="hljs-type">True</span>, <span class="hljs-comment">//Enable the register file write</span><br>        <span class="hljs-type">BYPASSABLE_EXECUTE_STAGE</span> -&gt; <span class="hljs-type">True</span>, <span class="hljs-comment">//Notify the hazard management unit that the instruction result is already accessible in the EXECUTE stage (Bypass ready)</span><br>        <span class="hljs-type">BYPASSABLE_MEMORY_STAGE</span>  -&gt; <span class="hljs-type">True</span>, <span class="hljs-comment">//Same as above but for the memory stage</span><br>        <span class="hljs-type">RS1_USE</span>                  -&gt; <span class="hljs-type">True</span>, <span class="hljs-comment">//Notify the hazard management unit that this instruction uses the RS1 value</span><br>        <span class="hljs-type">RS2_USE</span>                  -&gt; <span class="hljs-type">True</span>  <span class="hljs-comment">//Same as above but for RS2.</span><br>      )<br>    )<br>  }<br><br>  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">build</span></span>(pipeline: <span class="hljs-type">VexRiscv</span>): <span class="hljs-type">Unit</span> = {<br>    <span class="hljs-keyword">import</span> pipeline._<br>    <span class="hljs-keyword">import</span> pipeline.config._<br><br>    <span class="hljs-comment">//Add a new scope on the execute stage (used to give a name to signals)</span><br>    execute plug <span class="hljs-keyword">new</span> <span class="hljs-type">Area</span> {<br>      <span class="hljs-comment">//Define some signals used internally by the plugin</span><br>      <span class="hljs-keyword">val</span> rs1 = execute.input(<span class="hljs-type">RS1</span>).asUInt<br>      <span class="hljs-comment">//32 bits UInt value of the regfile[RS1]</span><br>      <span class="hljs-keyword">val</span> rs2 = execute.input(<span class="hljs-type">RS2</span>).asUInt<br>      <span class="hljs-keyword">val</span> rd = <span class="hljs-type">UInt</span>(<span class="hljs-number">32</span> bits)<br><br>      <span class="hljs-comment">//Do some computations</span><br>      rd(<span class="hljs-number">7</span> downto <span class="hljs-number">0</span>) := rs1(<span class="hljs-number">7</span> downto <span class="hljs-number">0</span>) + rs2(<span class="hljs-number">7</span> downto <span class="hljs-number">0</span>)<br>      rd(<span class="hljs-number">16</span> downto <span class="hljs-number">8</span>) := rs1(<span class="hljs-number">16</span> downto <span class="hljs-number">8</span>) + rs2(<span class="hljs-number">16</span> downto <span class="hljs-number">8</span>)<br>      rd(<span class="hljs-number">23</span> downto <span class="hljs-number">16</span>) := rs1(<span class="hljs-number">23</span> downto <span class="hljs-number">16</span>) + rs2(<span class="hljs-number">23</span> downto <span class="hljs-number">16</span>)<br>      rd(<span class="hljs-number">31</span> downto <span class="hljs-number">24</span>) := rs1(<span class="hljs-number">31</span> downto <span class="hljs-number">24</span>) + rs2(<span class="hljs-number">31</span> downto <span class="hljs-number">24</span>)<br><br>      <span class="hljs-comment">//When the instruction is a SIMD_ADD, write the result into the register file data path.</span><br>      when(execute.input(<span class="hljs-type">IS_SIMD_ADD</span>)) {<br>        execute.output(<span class="hljs-type">REGFILE_WRITE_DATA</span>) := rd.asBits<br>      }<br>    }<br>  }<br>}<br></code></pre></td></tr></table></figure>
+<p>如果你想把这个插件添加到某个CPU上，只需把它添加到其参数化插件列表。</p>
+<h4 id="示例代码分析"><a href="#示例代码分析" class="headerlink" title="示例代码分析"></a>示例代码分析</h4><p><strong>1.导入和类定义</strong><br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-keyword">import</span> spinal.core._<br><span class="hljs-keyword">import</span> vexriscv.plugin.<span class="hljs-type">Plugin</span><br><span class="hljs-keyword">import</span> vexriscv.{<span class="hljs-type">Stageable</span>, <span class="hljs-type">DecoderService</span>, <span class="hljs-type">VexRiscv</span>}<br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SimdAddPlugin</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Plugin</span>[<span class="hljs-type">VexRiscv</span>]</span>{<br></code></pre></td></tr></table></figure><br>这部分代码导入了必要的包，并定义了 SimdAddPlugin 类，继承自 Plugin [VexRiscv]，表明这是一个 VexRiscv 插件。</p>
+<p><strong>2.阶段信号定义</strong><br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">IS_SIMD_ADD</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Stageable</span>(<span class="hljs-params"><span class="hljs-type">Bool</span></span>)</span><br></code></pre></td></tr></table></figure><br>这行代码定义了一个 Stageable 对象 IS_SIMD_ADD，类型为 Bool，用于在流水线中传递控制信号，表示当前指令是否是 SIMD_ADD 指令。</p>
+<p><strong>3.setup 方法</strong><br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">setup</span></span>(pipeline: <span class="hljs-type">VexRiscv</span>): <span class="hljs-type">Unit</span> = {<br>  <span class="hljs-keyword">import</span> pipeline.config._<br><br>  <span class="hljs-comment">//Retrieve the DecoderService instance</span><br>  <span class="hljs-keyword">val</span> decoderService = pipeline.service(classOf[<span class="hljs-type">DecoderService</span>])<br><br>  <span class="hljs-comment">//Specify the IS_SIMD_ADD default value when instructions are decoded</span><br>  decoderService.addDefault(<span class="hljs-type">IS_SIMD_ADD</span>, <span class="hljs-type">False</span>)<br><br>  <span class="hljs-comment">//Specify the instruction decoding which should be applied when the instruction matches the 'key' parttern</span><br>  decoderService.add(<br>    <span class="hljs-comment">//Bit pattern of the new SIMD_ADD instruction</span><br>    key = <span class="hljs-type">M</span><span class="hljs-string">"0000011----------000-----0110011"</span>,<br><br>    <span class="hljs-comment">//Decoding specification when the 'key' pattern is recognized in the instruction</span><br>    <span class="hljs-type">List</span>(<br>      <span class="hljs-type">IS_SIMD_ADD</span>              -&gt; <span class="hljs-type">True</span>,<br>      <span class="hljs-type">REGFILE_WRITE_VALID</span>      -&gt; <span class="hljs-type">True</span>, <span class="hljs-comment">//Enable the register file write</span><br>      <span class="hljs-type">BYPASSABLE_EXECUTE_STAGE</span> -&gt; <span class="hljs-type">True</span>, <span class="hljs-comment">//Notify the hazard management unit that the instruction result is already accessible in the EXECUTE stage (Bypass ready)</span><br>      <span class="hljs-type">BYPASSABLE_MEMORY_STAGE</span>  -&gt; <span class="hljs-type">True</span>, <span class="hljs-comment">//Same as above but for the memory stage</span><br>      <span class="hljs-type">RS1_USE</span>                  -&gt; <span class="hljs-type">True</span>, <span class="hljs-comment">//Notify the hazard management unit that this instruction uses the RS1 value</span><br>      <span class="hljs-type">RS2_USE</span>                  -&gt; <span class="hljs-type">True</span>  <span class="hljs-comment">//Same as above but for RS2.</span><br>    )<br>  )<br>}<br></code></pre></td></tr></table></figure><br>setup 方法用于配置插件和获取服务：</p>
+<ol>
+<li>获取 DecoderService 实例，用于配置指令解码规则</li>
+<li>设置 IS_SIMD_ADD 的默认值为 False</li>
+<li>定义指令编码模式和解码规则：<ul>
+<li>key = M”0000011—————000——-0110011”：定义了 SIMD_ADD 指令的编码模式</li>
+<li>当指令匹配该模式时，设置以下控制信号：<ul>
+<li>IS_SIMD_ADD -&gt; True：表示这是 SIMD_ADD 指令</li>
+<li>REGFILE_WRITE_VALID -&gt; True：启用寄存器文件写入</li>
+<li>BYPASSABLE_EXECUTE_STAGE -&gt; True：通知冒险管理单元指令结果在执行阶段可用于旁路</li>
+<li>BYPASSABLE_MEMORY_STAGE -&gt; True：通知冒险管理单元指令结果在内存阶段可用于旁路</li>
+<li>RS1_USE -&gt; True：通知冒险管理单元该指令使用 RS1 寄存器</li>
+<li>RS2_USE -&gt; True：通知冒险管理单元该指令使用 RS2 寄存器</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>4.build 方法</strong><br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">build</span></span>(pipeline: <span class="hljs-type">VexRiscv</span>): <span class="hljs-type">Unit</span> = {<br>  <span class="hljs-keyword">import</span> pipeline._<br>  <span class="hljs-keyword">import</span> pipeline.config._<br><br>  <span class="hljs-comment">//Add a new scope on the execute stage (used to give a name to signals)</span><br>  execute plug <span class="hljs-keyword">new</span> <span class="hljs-type">Area</span> {<br>    <span class="hljs-comment">//Define some signals used internally by the plugin</span><br>    <span class="hljs-keyword">val</span> rs1 = execute.input(<span class="hljs-type">RS1</span>).asUInt<br>    <span class="hljs-comment">//32 bits UInt value of the regfile[RS1]</span><br>    <span class="hljs-keyword">val</span> rs2 = execute.input(<span class="hljs-type">RS2</span>).asUInt<br>    <span class="hljs-keyword">val</span> rd = <span class="hljs-type">UInt</span>(<span class="hljs-number">32</span> bits)<br><br>    <span class="hljs-comment">//Do some computations</span><br>    rd(<span class="hljs-number">7</span> downto <span class="hljs-number">0</span>) := rs1(<span class="hljs-number">7</span> downto <span class="hljs-number">0</span>) + rs2(<span class="hljs-number">7</span> downto <span class="hljs-number">0</span>)<br>    rd(<span class="hljs-number">16</span> downto <span class="hljs-number">8</span>) := rs1(<span class="hljs-number">16</span> downto <span class="hljs-number">8</span>) + rs2(<span class="hljs-number">16</span> downto <span class="hljs-number">8</span>)<br>    rd(<span class="hljs-number">23</span> downto <span class="hljs-number">16</span>) := rs1(<span class="hljs-number">23</span> downto <span class="hljs-number">16</span>) + rs2(<span class="hljs-number">23</span> downto <span class="hljs-number">16</span>)<br>    rd(<span class="hljs-number">31</span> downto <span class="hljs-number">24</span>) := rs1(<span class="hljs-number">31</span> downto <span class="hljs-number">24</span>) + rs2(<span class="hljs-number">31</span> downto <span class="hljs-number">24</span>)<br><br>    <span class="hljs-comment">//When the instruction is a SIMD_ADD, write the result into the register file data path.</span><br>    when(execute.input(<span class="hljs-type">IS_SIMD_ADD</span>)) {<br>      execute.output(<span class="hljs-type">REGFILE_WRITE_DATA</span>) := rd.asBits<br>    }<br>  }<br>}<br></code></pre></td></tr></table></figure><br>build 方法用于实现指令的功能逻辑：</p>
+<ol>
+<li>在执行阶段（execute）添加一个新的 Area，用于组织相关信号</li>
+<li>定义内部信号：<ul>
+<li>rs1：从流水线输入获取 RS1 寄存器的值，转换为 UInt 类型</li>
+<li>rs2：从流水线输入获取 RS2 寄存器的值，转换为 UInt 类型</li>
+<li>rd：定义一个 32 位 UInt 类型的信号，用于存储结果</li>
+</ul>
+</li>
+<li>实现 SIMD 加法逻辑：<ul>
+<li>rd (7 downto 0) := rs1 (7 downto 0) + rs2 (7 downto 0)：第 0 个 8 位通道的加法</li>
+<li>rd (16 downto 8) := rs1 (16 downto 8) + rs2 (16 downto 8)：第 1 个 8 位通道的加法</li>
+<li>rd (23 downto 16) := rs1 (23 downto 16) + rs2 (23 downto 16)：第 2 个 8 位通道的加法</li>
+<li>rd (31 downto 24) := rs1 (31 downto 24) + rs2 (31 downto 24)：第 3 个 8 位通道的加法</li>
+</ul>
+</li>
+<li>结果写回逻辑：<ul>
+<li>当 IS_SIMD_ADD 信号为 True 时，将 rd 的值转换为 Bits 类型，并写入 REGFILE_WRITE_DATA 信号，以便在写回阶段写入寄存器文件</li>
+</ul>
+</li>
+</ol>
+<h3 id="添加自定义CSR"><a href="#添加自定义CSR" class="headerlink" title="添加自定义CSR"></a>添加自定义CSR</h3><h4 id="CSR-地址空间分配"><a href="#CSR-地址空间分配" class="headerlink" title="CSR 地址空间分配"></a>CSR 地址空间分配</h4><p>RISC-V ISA 预留了 12 位编码空间（csr [11:0]，即 0x000-0xFFF），最多可支持 4096 个 CSR。CSR 地址的高 4 位（csr [11:8]）用于根据特权级别编码 CSR 的读写访问权限：</p>
+<ul>
+<li>最高两位（csr [11:10]）表示寄存器是读 / 写（00,01, 或 10）还是只读（11）</li>
+<li>接下来两位（csr [9:8]）编码可以访问 CSR 的最低特权级别</li>
+</ul>
+<h4 id="CSR-插件实现"><a href="#CSR-插件实现" class="headerlink" title="CSR 插件实现"></a>CSR 插件实现</h4><p>VexRiscv 通过两个主要插件实现 CSR 功能：</p>
+<ol>
+<li>CsrAccessPlugin：<ul>
+<li>实现了 CSR 的读写指令</li>
+<li>为其他插件提供了 API 来指定 CSR 寄存器和 CSR 指令之间的映射</li>
+<li>处理 CSR 访问的特权级别检查</li>
+</ul>
+</li>
+<li>CsrRamPlugin：<ul>
+<li>提供了一个 API，允许静态分配空间</li>
+<li>创建读写端口，以 FPGA 高效的方式存储 CSR 内容</li>
+<li>被各种插件用于存储 CSR 内容</li>
+</ul>
+</li>
+</ol>
+<p>VexRiscv 插件系统提供了一个 CsrInterface 服务，允许其他插件轻松地添加自定义 CSR。这个服务提供了以下主要方法：</p>
+<ul>
+<li>rw(address: Int, data: Data)：将一个可读写的 CSR 映射到指定地址</li>
+<li>r(address: Int, data: Data)：将一个只读的 CSR 映射到指定地址</li>
+<li>onWrite(address: Int)(callback: =&gt; Unit)：当向指定地址写入时执行回调</li>
+<li>onRead(address: Int)(callback: =&gt; Unit)：当从指定地址读取时执行回调</li>
+</ul>
+<p>通过这些方法，插件可以轻松地将自定义寄存器映射到 CSR 地址空间，并定义读写行为。</p>
+<h4 id="CustomCsrDemoPlugin示例"><a href="#CustomCsrDemoPlugin示例" class="headerlink" title="CustomCsrDemoPlugin示例"></a>CustomCsrDemoPlugin示例</h4><p><a target="_blank" rel="noopener" href="https://github.com/SpinalHDL/VexRiscv/blob/master/src/main/scala/vexriscv/demo/CustomCsrDemoPlugin.scala">CustomCsrDemoPlugin.scala</a> 包含两个插件类：</p>
+<ol>
+<li><p>CustomCsrDemoPlugin：添加了指令计数器和时钟周期计数器</p>
+</li>
+<li><p>CustomCsrDemoGpioPlugin：创建了一个直接映射到 CSR 的 GPIO 外设</p>
+</li>
+</ol>
+<p>这两个类都继承自Plugin[VexRiscv]，表明它们是 VexRiscv 插件。</p>
+<p><strong>CustomCsrDemoPlugin类：</strong><br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomCsrDemoPlugin</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Plugin</span>[<span class="hljs-type">VexRiscv</span>]</span>{<br>  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">build</span></span>(pipeline: <span class="hljs-type">VexRiscv</span>): <span class="hljs-type">Unit</span> = {<br>    <span class="hljs-keyword">import</span> pipeline._<br>    <span class="hljs-keyword">import</span> pipeline.config._<br>    <br>    pipeline plug <span class="hljs-keyword">new</span> <span class="hljs-type">Area</span>{<br>      <span class="hljs-keyword">val</span> instructionCounter = <span class="hljs-type">Reg</span>(<span class="hljs-type">UInt</span>(<span class="hljs-number">32</span> bits))<br>      <span class="hljs-keyword">val</span> cycleCounter = <span class="hljs-type">Reg</span>(<span class="hljs-type">UInt</span>(<span class="hljs-number">32</span> bits))<br>      <br>      cycleCounter := cycleCounter + <span class="hljs-number">1</span><br>      when(writeBack.arbitration.isFiring) {<br>        instructionCounter := instructionCounter + <span class="hljs-number">1</span><br>      }<br>      <br>      <span class="hljs-keyword">val</span> csrService = pipeline.service(classOf[<span class="hljs-type">CsrInterface</span>])<br>      <br>      csrService.rw(<span class="hljs-number">0xB04</span>, instructionCounter)<br>      csrService.r(<span class="hljs-number">0xB05</span>, cycleCounter)<br>      <br>      csrService.onWrite(<span class="hljs-number">0xB06</span>){<br>        instructionCounter := <span class="hljs-number">0</span><br>      }<br>      <br>      csrService.onRead(<span class="hljs-number">0xB07</span>){<br>        instructionCounter := <span class="hljs-number">0x40000000</span><br>      }<br>    }<br>  }<br>}<br></code></pre></td></tr></table></figure><br>这个插件实现了以下功能：</p>
+<ol>
+<li>创建计数器寄存器：<ul>
+<li>instructionCounter：记录已执行的指令数</li>
+<li>cycleCounter：记录时钟周期数</li>
+</ul>
+</li>
+<li>计数器更新逻辑：<ul>
+<li>cycleCounter每个时钟周期加 1</li>
+<li>instructionCounter在写回阶段（writeBack）触发时加 1</li>
+</ul>
+</li>
+<li>CSR 映射：<ul>
+<li>csrService.rw(0xB04, instructionCounter)：将 instructionCounter 映射到 0xB04 地址，可读写</li>
+<li>csrService.r(0xB05, cycleCounter)：将 cycleCounter 映射到 0xB05 地址，只读</li>
+</ul>
+</li>
+<li>特殊 CSR 行为：<ul>
+<li>csrService.onWrite(0xB06)：当向 0xB06 地址写入时，重置 instructionCounter</li>
+<li>csrService.onRead(0xB07)：当从 0xB07 地址读取时，返回 0x40000000</li>
+</ul>
+</li>
+</ol>
+<p><strong>CustomCsrDemoGpioPlugin类：</strong><br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CustomCsrDemoGpioPlugin</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Plugin</span>[<span class="hljs-type">VexRiscv</span>]</span>{<br>  <span class="hljs-keyword">var</span> gpio : <span class="hljs-type">TriStateArray</span> = <span class="hljs-literal">null</span><br>  <br>  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">setup</span></span>(pipeline: <span class="hljs-type">VexRiscv</span>): <span class="hljs-type">Unit</span> = {<br>    gpio = master(<span class="hljs-type">TriStateArray</span>(<span class="hljs-number">32</span> bits)).setName(<span class="hljs-string">"gpio"</span>)<br>  }<br>  <br>  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">build</span></span>(pipeline: <span class="hljs-type">VexRiscv</span>): <span class="hljs-type">Unit</span> = {<br>    <span class="hljs-keyword">import</span> pipeline._<br>    <span class="hljs-keyword">import</span> pipeline.config._<br>    <br>    pipeline plug <span class="hljs-keyword">new</span> <span class="hljs-type">Area</span>{<br>      <span class="hljs-keyword">val</span> writeReg, writeEnableReg = <span class="hljs-type">Reg</span>(<span class="hljs-type">Bits</span>(<span class="hljs-number">32</span> bits))<br>      <br>      <span class="hljs-keyword">val</span> csrService = pipeline.service(classOf[<span class="hljs-type">CsrInterface</span>])<br>      <br>      csrService.rw(<span class="hljs-number">0xB08</span>, writeReg)<br>      csrService.rw(<span class="hljs-number">0xB09</span>, writeEnableReg)<br>      csrService.r(<span class="hljs-number">0xB0A</span>, gpio.read)<br>      <br>      gpio.writeEnable := writeEnableReg<br>      gpio.write := writeReg<br>    }<br>  }<br>}<br></code></pre></td></tr></table></figure><br>这个插件实现了以下功能：</p>
+<ol>
+<li>GPIO 接口定义：<ul>
+<li>在setup方法中定义了一个 32 位的三态数组 GPIO 接口</li>
+<li>这个接口被设置为 master 类型，表示它是一个输出接口</li>
+</ul>
+</li>
+<li>GPIO 控制寄存器：<ul>
+<li>writeReg：存储要写入 GPIO 的值</li>
+<li>writeEnableReg：存储 GPIO 的写使能信号</li>
+</ul>
+</li>
+<li>CSR 映射：<ul>
+<li>csrService.rw(0xB08, writeReg)：将 writeReg 映射到 0xB08 地址，可读写</li>
+<li>csrService.rw(0xB09, writeEnableReg)：将 writeEnableReg 映射到 0xB09 地址，可读写</li>
+<li>csrService.r(0xB0A, gpio.read)：将 gpio.read 映射到 0xB0A 地址，只读</li>
+</ul>
+</li>
+<li>GPIO 控制逻辑：<ul>
+<li>gpio.writeEnable := writeEnableReg：将 writeEnableReg 的值赋给 gpio.writeEnable</li>
+<li>gpio.write := writeReg：将 writeReg 的值赋给 gpio.write</li>
+</ul>
+</li>
+</ol>
+<h4 id="自定义CSR步骤"><a href="#自定义CSR步骤" class="headerlink" title="自定义CSR步骤"></a>自定义CSR步骤</h4><ol>
+<li>创建插件类：<ul>
+<li>继承自Plugin[VexRiscv]</li>
+<li>实现setup和 / 或build方法</li>
+</ul>
+</li>
+<li>定义自定义寄存器：<ul>
+<li>在插件中定义需要映射到 CSR 的寄存器</li>
+<li>定义寄存器的更新逻辑</li>
+</ul>
+</li>
+<li>获取 CsrInterface 服务：<ul>
+<li>使用pipeline.service(classOf[CsrInterface])获取 CsrInterface 服务</li>
+</ul>
+</li>
+<li>映射 CSR 地址：<ul>
+<li>使用csrService.rw、csrService.r、csrService.onWrite或csrService.onRead方法映射 CSR 地址</li>
+</ul>
+</li>
+<li>配置 CPU 时添加插件：<ul>
+<li>在 CPU 配置中添加自定义 CSR 插件</li>
+</ul>
+</li>
+</ol>
+<h4 id="自定义示例代码"><a href="#自定义示例代码" class="headerlink" title="自定义示例代码"></a>自定义示例代码</h4><p>1.CSR 插件示例：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyCustomCsrPlugin</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Plugin</span>[<span class="hljs-type">VexRiscv</span>]</span>{<br>  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">build</span></span>(pipeline: <span class="hljs-type">VexRiscv</span>): <span class="hljs-type">Unit</span> = {<br>    <span class="hljs-keyword">import</span> pipeline._<br>    <span class="hljs-keyword">import</span> pipeline.config._<br>    <br>    pipeline plug <span class="hljs-keyword">new</span> <span class="hljs-type">Area</span>{<br>      <span class="hljs-comment">// 定义自定义寄存器</span><br>      <span class="hljs-keyword">val</span> myCounter = <span class="hljs-type">Reg</span>(<span class="hljs-type">UInt</span>(<span class="hljs-number">32</span> bits)) init(<span class="hljs-number">0</span>)<br>      <span class="hljs-keyword">val</span> myControl = <span class="hljs-type">Reg</span>(<span class="hljs-type">Bits</span>(<span class="hljs-number">4</span> bits)) init(<span class="hljs-number">0</span>)<br>      <br>      <span class="hljs-comment">// 定义寄存器更新逻辑</span><br>      myCounter := myCounter + <span class="hljs-number">1</span><br>      <br>      <span class="hljs-comment">// 获取CsrInterface服务</span><br>      <span class="hljs-keyword">val</span> csrService = pipeline.service(classOf[<span class="hljs-type">CsrInterface</span>])<br>      <br>      <span class="hljs-comment">// 映射CSR地址（使用自定义CSR范围）</span><br>      csrService.rw(<span class="hljs-number">0x7C0</span>, myCounter)    <span class="hljs-comment">// 读写访问</span><br>      csrService.rw(<span class="hljs-number">0x7C1</span>, myControl)    <span class="hljs-comment">// 读写访问</span><br>      <br>      <span class="hljs-comment">// 定义特殊行为</span><br>      csrService.onWrite(<span class="hljs-number">0x7C2</span>){         <span class="hljs-comment">// 当写入0x7C2时</span><br>        myCounter := <span class="hljs-number">0</span>                   <span class="hljs-comment">// 重置myCounter</span><br>      }<br>      <br>      csrService.onRead(<span class="hljs-number">0x7C3</span>){          <span class="hljs-comment">// 当读取0x7C3时</span><br>        <span class="hljs-comment">// 执行一些操作</span><br>      }<br>    }<br>  }<br>}<br></code></pre></td></tr></table></figure></p>
+<p>2.在 CPU 配置中添加插件：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs scala"><span class="hljs-comment">// 创建CPU配置</span><br><span class="hljs-keyword">val</span> cpu = <span class="hljs-keyword">new</span> <span class="hljs-type">VexRiscv</span>(<br>  <span class="hljs-comment">// 添加自定义CSR插件</span><br>  plugins = <span class="hljs-type">List</span>(<br>    <span class="hljs-keyword">new</span> <span class="hljs-type">IBusSimplePlugin</span>(resetVector = <span class="hljs-number">0x80000000</span>l),<br>    <span class="hljs-keyword">new</span> <span class="hljs-type">DecoderSimplePlugin</span>,<br>    <span class="hljs-keyword">new</span> <span class="hljs-type">RegFilePlugin</span>(regFileReadyKind = plugin.<span class="hljs-type">SYNC</span>, zeroBoot = <span class="hljs-literal">false</span>),<br>    <span class="hljs-keyword">new</span> <span class="hljs-type">IntAluPlugin</span>,<br>    <span class="hljs-keyword">new</span> <span class="hljs-type">SrcPlugin</span>(separatedAddSub = <span class="hljs-literal">false</span>, executeInsertion = <span class="hljs-literal">true</span>),<br>    <span class="hljs-keyword">new</span> <span class="hljs-type">FullBarrelShifterPlugin</span>,<br>    <span class="hljs-keyword">new</span> <span class="hljs-type">HazardSimplePlugin</span>(bypassExecute = <span class="hljs-literal">true</span>, bypassMemory = <span class="hljs-literal">true</span>, bypassWriteBack = <span class="hljs-literal">true</span>, bypassWriteBackBuffer = <span class="hljs-literal">true</span>),<br>    <span class="hljs-keyword">new</span> <span class="hljs-type">BranchPlugin</span>(earlyBranch = <span class="hljs-literal">false</span>, catchAddressMisaligned = <span class="hljs-literal">true</span>),<br>    <span class="hljs-keyword">new</span> <span class="hljs-type">CsrPlugin</span>(<span class="hljs-type">CsrPluginConfig</span>.small),  <span class="hljs-comment">// 需要添加CsrPlugin</span><br>    <span class="hljs-keyword">new</span> <span class="hljs-type">MyCustomCsrPlugin</span>                  <span class="hljs-comment">// 添加自定义CSR插件</span><br>  )<br>)<br></code></pre></td></tr></table></figure></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/RISC-V/" class="category-chain-item">RISC-V</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/RISC-V/VexRiscv/" class="category-chain-item">VexRiscv</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Litex/" class="category-chain-item">Litex</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Computer-Architecture/" class="category-chain-item">Computer Architecture</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/FPGA/" class="category-chain-item">FPGA</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/RISC-V/" class="print-no-link">#RISC-V</a>
+      
+        <a href="/tags/VexRiscv/" class="print-no-link">#VexRiscv</a>
+      
+        <a href="/tags/Computer-Architecture/" class="print-no-link">#Computer Architecture</a>
+      
+        <a href="/tags/FPGA/" class="print-no-link">#FPGA</a>
+      
+        <a href="/tags/Litex/" class="print-no-link">#Litex</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Litex-VexRiscv 编译SoC</div>
+      <div>http://ruak.github.io/2026/02/03/Litex-VexRiscv-编译SoC/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>HUANGDAN</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年2月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/02/03/TLB-Attacks-and-Potential-Defense-Strategies/" title="TLB Attacks and Potential Defense Strategies">
+                        <span class="hidden-mobile">TLB Attacks and Potential Defense Strategies</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.8.0/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"Ov23liShVrg2q1cvgy8e","clientSecret":"c799aabf17670a714bab29a1ec1fde855622bcd6","repo":"hexo-fluid-gitalk","owner":"Ruak","admin":["Ruak"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://vercel.prohibitorum.top/github_access_token"},
+          {
+            id: '882cd6fdf6739c26e3392ac172ff3ba5'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      // 统一使用 ▶ 字符，通过旋转控制方向，避免不同字符导致的视觉比例不一致
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        // 没有子目录的条目也需要占位，保证缩进对齐
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">▶</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          // 统一使用 ▶ 字符，后续通过 CSS 旋转控制展开/折叠方向
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">▶</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
