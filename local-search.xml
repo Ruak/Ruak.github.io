@@ -4,6 +4,51 @@
   
   
   <entry>
+    <title>AI Agent 框架调研与分析报告</title>
+    <link href="/2026/05/24/AI-Agent-%E6%A1%86%E6%9E%B6%E8%B0%83%E7%A0%94%E4%B8%8E%E5%88%86%E6%9E%90%E6%8A%A5%E5%91%8A/"/>
+    <url>/2026/05/24/AI-Agent-%E6%A1%86%E6%9E%B6%E8%B0%83%E7%A0%94%E4%B8%8E%E5%88%86%E6%9E%90%E6%8A%A5%E5%91%8A/</url>
+    
+    <content type="html"><![CDATA[<h1 id="AI-Agent-框架调研与分析报告"><a href="#AI-Agent-框架调研与分析报告" class="headerlink" title="AI Agent 框架调研与分析报告"></a>AI Agent 框架调研与分析报告</h1><h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>2026 年的 AI Agent 生态已经不再只是“给 LLM 加工具调用”。更准确的划分应该是：</p><ul><li><strong>Agent SDK</strong>：面向业务应用开发，提供 Agent、Tool、Guardrail、Handoff、Tracing 等基础抽象。</li><li><strong>Agent 编排运行时</strong>：把多步骤、多 Agent、长任务、人类审批、失败恢复抽象成图或工作流。</li><li><strong>本地 Agent OS / Gateway</strong>：把 Agent 放到用户真实工作环境里，连接消息、文件、系统工具、MCP、长期记忆。</li><li><strong>AI Coding Agent 产品</strong>：面向软件工程任务，内置代码库读取、文件编辑、命令执行、PR/CI/CD 等能力。</li><li><strong>Harness Engineering</strong>：不是单个框架，而是围绕 Agent 构建上下文、工具、验证、权限和反馈回路的工程方法论。</li></ul><p>核心结论是：<strong>模型能力正在趋同，真正拉开差距的是 Agent 周围的运行环境</strong>。Claude Code、Codex、OpenClaw 这类工具证明了“可执行环境 + 项目知识 + 审批与回滚 + 持续验证”比单次提示词更重要；LangGraph、Microsoft Agent Framework、Harness Agents 则说明生产环境更关心状态持久化、权限、审计和可恢复执行。</p><h2 id="分析口径"><a href="#分析口径" class="headerlink" title="分析口径"></a>分析口径</h2><p>本文把“AI 框架”按工程边界拆开，而不是按热度排序。原因是不同项目解决的问题不同：</p><div class="table-container"><table><thead><tr><th>类型</th><th>代表</th><th>核心问题</th></tr></thead><tbody><tr><td>SDK / 库</td><td>OpenAI Agents SDK、Microsoft Agent Framework</td><td>如何在应用内构建可控 Agent</td></tr><tr><td>编排运行时</td><td>LangGraph、CrewAI Flows</td><td>如何表达长流程、多节点、状态和恢复</td></tr><tr><td>本地 Agent OS</td><td>OpenClaw、AgentOS</td><td>如何让 Agent 操作个人环境和跨应用数据</td></tr><tr><td>编码代理产品</td><td>Claude Code、Codex、OpenHands</td><td>如何让 Agent 读写代码、运行命令、交付 PR</td></tr><tr><td>工程方法论</td><td>Harness Engineering</td><td>如何让 Agent 可靠、可审计、可迭代</td></tr></tbody></table></div><p>因此，Claude Code 不应直接和 LangGraph 比“谁更强”；前者是带有完整执行面的产品，后者是构建 Agent 系统的编排底座。</p><h2 id="生态趋势"><a href="#生态趋势" class="headerlink" title="生态趋势"></a>生态趋势</h2><h3 id="从-Prompt-Engineering-到-Harness-Engineering"><a href="#从-Prompt-Engineering-到-Harness-Engineering" class="headerlink" title="从 Prompt Engineering 到 Harness Engineering"></a>从 Prompt Engineering 到 Harness Engineering</h3><p>Mitchell Hashimoto 在 2026 年 2 月的文章中把这一类实践称为 <strong>Harness Engineering</strong>：当 Agent 犯错时，不只是修改提示词，而是改造它所处的环境，让同类错误不再发生。这个环境包括 <code>AGENTS.md</code> / <code>CLAUDE.md</code>、脚本、测试、截图工具、权限规则、验证器和回滚机制。</p><p>OpenAI 随后在 Codex 实验报告中给出了更激进的例子：团队用 Codex 构建一个约百万行代码的内部产品，并明确指出工程师的工作从“手写代码”转向“设计环境、表达意图、构建反馈回路”。这说明 Agent 系统的瓶颈正在从“模型能不能写代码”转向“系统能不能定义正确的完成标准”。</p><h3 id="Agent-开始需要“操作系统化”"><a href="#Agent-开始需要“操作系统化”" class="headerlink" title="Agent 开始需要“操作系统化”"></a>Agent 开始需要“操作系统化”</h3><p>OpenClaw 和 AgentOS 代表另一条路线：不是把 Agent 嵌入单个 App，而是给 Agent 一个本地控制面。它们关心的问题包括：</p><ul><li>如何统一消息入口、文件、浏览器、系统工具和外部服务。</li><li>如何维护长期记忆和跨应用实体关系。</li><li>如何把不同工具能力以 MCP、Skill、Capability 等形式暴露给 Agent。</li><li>如何在本地优先的前提下处理权限、密钥、沙箱和审计。</li></ul><p>这类项目的风险也更高，因为 Agent 不再只是“回答问题”，而是继承了用户机器和账号的真实权限。</p><h3 id="生产系统重视确定性和可恢复性"><a href="#生产系统重视确定性和可恢复性" class="headerlink" title="生产系统重视确定性和可恢复性"></a>生产系统重视确定性和可恢复性</h3><p>LangGraph、Microsoft Agent Framework、Harness Agents 的共同点是把 Agent 放进更传统的软件工程控制面：</p><ul><li>每一步有状态。</li><li>关键动作可审批。</li><li>执行过程可追踪。</li><li>失败后可恢复或重放。</li><li>权限和密钥不直接暴露给模型。</li></ul><p>这类能力在 Demo 中不显眼，但在生产环境里比“多 Agent 对话”本身更重要。</p><h2 id="代表框架与项目分析"><a href="#代表框架与项目分析" class="headerlink" title="代表框架与项目分析"></a>代表框架与项目分析</h2><h3 id="OpenClaw"><a href="#OpenClaw" class="headerlink" title="OpenClaw"></a>OpenClaw</h3><p><a href="https://docs.openclaw.ai/">OpenClaw</a> 是一个自托管的 AI Agent Gateway。官方文档把它描述为连接 Discord、Slack、Telegram、WhatsApp、Signal、iMessage、Teams 等多种消息渠道与 AI coding agents 的本地 Gateway。它的 GitHub README 也强调“运行在你自己的设备上”，以 Gateway 作为会话、渠道、工具和事件的控制面。</p><p>它的核心价值在于：</p><ol><li><strong>入口统一</strong>：用户可以从常用聊天工具发起任务，而不是打开单独的 Agent UI。</li><li><strong>本地优先</strong>：会话、配置、工具执行尽量留在用户自己的机器或服务器上。</li><li><strong>多 Agent 路由</strong>：不同 sender、channel、workspace 可以路由到隔离的 Agent 会话。</li><li><strong>技能和工具生态</strong>：通过 Skills、工具和插件扩展 Agent 能力。</li></ol><p>主要风险也很明确。OpenClaw 连接真实聊天入口和本地工具，如果默认权限过宽，外部消息、群聊内容、插件或 Skill 都可能成为提示注入和越权执行入口。它更适合有运维和安全意识的个人开发者、研究者、小团队，而不是直接无防护地放进企业内网。</p><h3 id="AgentOS"><a href="#AgentOS" class="headerlink" title="AgentOS"></a>AgentOS</h3><p><a href="https://agentos.to/">AgentOS</a> 把自己定位为“local operating system for human-AI collaboration”。它不是简单的聊天工具，而是试图为 Agent 提供一个本地知识图谱、能力代理和工具面。</p><p>从架构文档看，AgentOS 的核心组件包括：</p><ul><li><strong>Rust engine</strong>：负责运行图、执行 skills、解析认证、通过 MCP 暴露给 Claude Code、Cursor 等客户端。</li><li><strong>SQLite memex graph</strong>：以 <code>~/.agentos/data/agentos.db</code> 存储节点、边和值，作为个人知识图谱。</li><li><strong>Python skills</strong>：连接外部服务或提供纯 Agent 工具，通过 <code>@provides(...)</code> 声明能力。</li><li><strong>Capability broker</strong>：应用只请求能力，Skill 只声明能力，双方不直接互相依赖。</li><li><strong>MCP interface</strong>：让支持 MCP 的 Agent 客户端把 AgentOS 当作工具面使用。</li></ul><p>AgentOS 的设计亮点是“实体图谱 + 能力代理”。它适合构建长期个人工作记忆，例如跨消息、任务、日历、文档的统一查询。短板是生态仍处于早期，价值依赖大量高质量 Skill 和 Shape 建模，否则容易停留在架构愿景层面。</p><h3 id="Claude-Code"><a href="#Claude-Code" class="headerlink" title="Claude Code"></a>Claude Code</h3><p><a href="https://code.claude.com/docs/en/overview">Claude Code</a> 是 Anthropic 的 agentic coding tool，运行在 terminal、IDE、desktop app 和 web 等多个界面。它能读取代码库、编辑文件、运行命令，并与开发工具集成。</p><p>Claude Code 的优势在于产品化程度高：</p><ul><li><code>CLAUDE.md</code> 和 rules 能把项目约定写入 Agent 上下文。</li><li>MCP 能连接 Google Drive、Jira、Slack 或自定义工具。</li><li>Skills 可以封装团队可复用流程。</li><li>Hooks 能在工具调用前后执行命令、HTTP、MCP tool、prompt 或 verifier agent。</li><li>Subagents 和 agent teams 支持隔离上下文或多实例协作。</li><li>CLI 可以进入 CI/CD、脚本和管道。</li></ul><p>Claude Code 的本质不是通用 Agent SDK，而是“软件工程场景的完整 harness”。它适合真实代码库中的增量开发、测试修复、重构、PR 生成和代码审查。它的限制是供应商绑定较强，运行质量高度依赖项目说明、测试体系、权限配置和人工 review。</p><h3 id="Harness-Agents"><a href="#Harness-Agents" class="headerlink" title="Harness Agents"></a>Harness Agents</h3><p><a href="https://developer.harness.io/docs/platform/harness-ai/harness-agents/">Harness Worker Agents</a> 是企业 DevOps 平台中的 Agent 形态。它们不是独立聊天机器人，而是运行在 Harness pipeline 内的 AI-powered automation units。</p><p>其关键特点是：</p><ul><li>Agent 是 pipeline step，可嵌入 CI、CD、IaCM、STO、SCS 或 Custom stage。</li><li>每个 Worker Agent 由 Instructions、Model Connector、MCP Server、inputs、environment variables 组成。</li><li>继承 Harness 的 secrets、RBAC、pipeline context、trigger 和审计能力。</li><li>Marketplace 提供代码审查、Autofix、Manifest 修复、IaC 安全检查等模板。</li><li>输出变量可传给后续 pipeline step，用于审批、条件判断和通知。</li></ul><p>这类 Agent 的工程意义很强：它把 AI 自动化放进已有交付控制面，而不是另起一个无法审计的外部机器人。适合企业 DevOps、平台工程、安全修复、CI 失败分析等场景。</p><h3 id="OpenAI-Agents-SDK"><a href="#OpenAI-Agents-SDK" class="headerlink" title="OpenAI Agents SDK"></a>OpenAI Agents SDK</h3><p><a href="https://openai.github.io/openai-agents-python/agents/">OpenAI Agents SDK</a> 的核心抽象是 <code>Agent</code> 和 <code>Runner</code>，用于管理 turns、tools、guardrails、handoffs 和 sessions。它更像一个应用开发 SDK，而不是一个完整产品。</p><p>它适合：</p><ul><li>在客服、运营、数据分析等业务应用中嵌入 Agent。</li><li>用 handoffs 把任务委托给不同专业 Agent。</li><li>用 guardrails 对输入、输出和工具调用做检查。</li><li>用 tracing 观察 LLM generation、tool call、handoff、guardrail 和自定义事件。</li></ul><p>如果目标是做一个可控的业务 Agent 服务，Agents SDK 比直接裸调模型 API 更合适。但如果任务需要复杂图状态、长时间挂起和恢复，通常还要搭配工作流引擎或持久化层。</p><h3 id="LangGraph"><a href="#LangGraph" class="headerlink" title="LangGraph"></a>LangGraph</h3><p><a href="https://docs.langchain.com/langgraph">LangGraph</a> 是低层级的 Agent 编排框架和运行时，重点不在“自动帮你写 prompt”，而在长期、有状态、多节点的执行。</p><p>它的关键能力包括：</p><ul><li>图结构表达 Agent / function / tool 的控制流。</li><li>checkpoint 持久化状态。</li><li>durable execution 支持中断后恢复。</li><li>human-in-the-loop 可以在任意节点暂停、审批、修改状态后继续。</li><li>与 LangSmith 等观测工具结合，方便调试复杂执行路径。</li></ul><p>LangGraph 适合构建严肃生产 Agent：例如审批流、研究流、客服升级流、数据处理流、需要恢复的长任务。代价是抽象偏底层，工程团队需要自己设计状态、节点、边和错误处理。</p><h3 id="CrewAI"><a href="#CrewAI" class="headerlink" title="CrewAI"></a>CrewAI</h3><p><a href="https://docs.crewai.com/en">CrewAI</a> 主打 collaborative agents、crews 和 flows。Crews 适合角色分工式任务，Flows 则用于更确定的事件驱动工作流。</p><p>它的优势是上手快，抽象贴近“团队协作”：</p><ul><li>Agent 有角色、目标、工具、记忆、知识和结构化输出。</li><li>Crew 负责多个 Agent 协作完成任务。</li><li>Flow 提供更可控的步骤、状态、持久化和恢复。</li><li>Enterprise 版本提供部署、触发器、RBAC、监控等平台能力。</li></ul><p>CrewAI 适合原型、自动化任务和中等复杂度的多 Agent 应用。若系统需要强一致状态、复杂审批、严格权限和细粒度重放，LangGraph 或 Microsoft Agent Framework 的确定性控制会更合适。</p><h3 id="Microsoft-Agent-Framework"><a href="#Microsoft-Agent-Framework" class="headerlink" title="Microsoft Agent Framework"></a>Microsoft Agent Framework</h3><p><a href="https://learn.microsoft.com/en-us/agent-framework/overview/">Microsoft Agent Framework</a> 是 Microsoft 将 AutoGen 的多 Agent 抽象和 Semantic Kernel 的企业能力合并后的下一代框架，支持 Python 和 .NET。</p><p>它的定位偏企业应用开发：</p><ul><li>Agents 负责 LLM 输入处理、工具调用、MCP server 和响应生成。</li><li>Workflows 提供图式工作流、类型安全路由、checkpoint 和 human-in-the-loop。</li><li>支持 Foundry、Anthropic、Azure OpenAI、OpenAI、Ollama 等 provider。</li><li>提供 session state、context provider、middleware、telemetry、MCP clients。</li></ul><p>如果团队在 Azure、.NET、Microsoft Foundry 或 Copilot 生态内，Microsoft Agent Framework 是非常自然的选择。它的优势不是最轻量，而是企业集成、类型系统、可观测性和长期维护路径。</p><h3 id="OpenHands"><a href="#OpenHands" class="headerlink" title="OpenHands"></a>OpenHands</h3><p><a href="https://github.com/OpenHands/OpenHands">OpenHands</a> 是开源的软件开发 Agent 平台，前身是 OpenDevin。它可以让 Agent 像开发者一样写代码、操作命令行、浏览网页、调用 API，并提供 CLI、本地 GUI、云服务和 Software Agent SDK。</p><p>OpenHands 的价值在于开放和可定制：</p><ul><li>适合研究软件工程 Agent 的执行环境、沙箱、轨迹和评测。</li><li>适合希望自托管 coding agent 的团队。</li><li>相比 Claude Code / Codex 这类闭源产品，更容易做底层改造和安全审计。</li></ul><p>它的问题是生产体验通常不如商业产品顺滑，团队需要自行承担模型选择、沙箱、凭证、成本、质量和部署维护。</p><h2 id="横向对比"><a href="#横向对比" class="headerlink" title="横向对比"></a>横向对比</h2><div class="table-container"><table><thead><tr><th>项目</th><th>类型</th><th>最强能力</th><th>主要短板</th><th>适合场景</th></tr></thead><tbody><tr><td>OpenClaw</td><td>本地 Gateway / Personal Agent</td><td>多消息渠道、本地优先、多 Agent 路由</td><td>权限与提示注入风险高，生态仍在快速变化</td><td>个人助理、跨聊天工具自动化、本地 Agent 实验</td></tr><tr><td>AgentOS</td><td>本地 Agent OS</td><td>SQLite memex graph、Capability broker、MCP 工具面</td><td>价值依赖 Skill/Shape 生态成熟度</td><td>个人知识图谱、长期记忆、跨应用上下文</td></tr><tr><td>Claude Code</td><td>编码代理产品</td><td>代码库操作、命令执行、Hooks、Skills、Subagents</td><td>供应商绑定，需强测试和 review</td><td>日常开发、重构、测试修复、PR 自动化</td></tr><tr><td>Harness Agents</td><td>DevOps Agent 平台</td><td>Pipeline-native、RBAC、Secrets、审计、触发器</td><td>依赖 Harness 平台</td><td>企业 CI/CD、DevOps、安全修复、IaC 审查</td></tr><tr><td>OpenAI Agents SDK</td><td>Agent SDK</td><td>Handoffs、Guardrails、Tracing、业务嵌入</td><td>长流程状态需额外设计</td><td>客服、运营、业务 Agent、工具调用应用</td></tr><tr><td>LangGraph</td><td>编排运行时</td><td>图编排、持久化、恢复、HITL</td><td>抽象偏底层，上手成本较高</td><td>生产级长任务、多步骤审批、复杂状态机</td></tr><tr><td>CrewAI</td><td>多 Agent 框架</td><td>Crews + Flows，上手快</td><td>强控制和审计能力需额外补充</td><td>原型、多角色协作、自动化流程</td></tr><tr><td>Microsoft Agent Framework</td><td>企业 Agent 框架</td><td>.NET/Python、workflow、type safety、telemetry</td><td>生态偏 Microsoft，框架较重</td><td>Azure / .NET 企业 Agent 应用</td></tr><tr><td>OpenHands</td><td>开源 coding agent 平台</td><td>开放、可自托管、软件开发 Agent SDK</td><td>产品体验和运维成本较高</td><td>Coding agent 研究、自托管开发代理</td></tr></tbody></table></div><h2 id="技术选型建议"><a href="#技术选型建议" class="headerlink" title="技术选型建议"></a>技术选型建议</h2><h3 id="个人开发者"><a href="#个人开发者" class="headerlink" title="个人开发者"></a>个人开发者</h3><p>如果目标是提高日常编码效率，优先选 <strong>Claude Code / Codex / OpenHands</strong> 这类 coding agent，而不是先从 LangGraph 搭底层框架。真正能提升效率的是：</p><ol><li>写好 <code>AGENTS.md</code> / <code>CLAUDE.md</code>。</li><li>保证项目有可运行测试、lint、format 和截图验证工具。</li><li>把常见错误沉淀成脚本、hook、rule 或 skill。</li><li>限制 Agent 权限，避免直接放开危险命令。</li></ol><h3 id="企业-DevOps-平台工程"><a href="#企业-DevOps-平台工程" class="headerlink" title="企业 DevOps / 平台工程"></a>企业 DevOps / 平台工程</h3><p>如果团队已有 Harness，<strong>Harness Agents</strong> 的 pipeline-native 模式最值得关注。它避免了“外部 AI bot 持有一堆 token 后到处执行”的治理问题，把 Agent 放进已有 RBAC、Secrets、审计和审批流里。</p><p>如果团队在 Azure / .NET 生态，<strong>Microsoft Agent Framework</strong> 更适合做可维护的企业 Agent 应用。</p><h3 id="复杂业务-Agent"><a href="#复杂业务-Agent" class="headerlink" title="复杂业务 Agent"></a>复杂业务 Agent</h3><p>需要明确状态机、审批、重试和恢复时，优先考虑 <strong>LangGraph</strong> 或 <strong>Microsoft Agent Framework Workflows</strong>。不要用一串 prompt 和回调硬拼长期任务，否则后期很难排查失败位置。</p><h3 id="个人知识管理-本地-AI-OS"><a href="#个人知识管理-本地-AI-OS" class="headerlink" title="个人知识管理 / 本地 AI OS"></a>个人知识管理 / 本地 AI OS</h3><p>如果关注“Agent 能否理解我的所有工作上下文”，可以关注 <strong>AgentOS</strong>。它的 memex graph 思路比传统 RAG 更系统：数据不是一堆文档 chunk，而是人、任务、消息、事件、文档之间的关系。</p><p>如果关注“从任何聊天入口调度个人 Agent”，可以关注 <strong>OpenClaw</strong>。但必须先处理安全边界：白名单、沙箱、权限分级、日志、远程暴露策略和插件供应链。</p><h2 id="风险与安全问题"><a href="#风险与安全问题" class="headerlink" title="风险与安全问题"></a>风险与安全问题</h2><p>AI Agent 框架的主要风险不是“回答错了”，而是“带着真实权限错误地行动”。需要重点关注：</p><ol><li><strong>提示注入</strong>：邮件、网页、聊天消息、Issue、PR 评论都可能诱导 Agent 泄露数据或执行危险动作。</li><li><strong>权限继承</strong>：本地 Agent 往往继承用户账号、shell、浏览器、云服务 token 的权限。</li><li><strong>工具越权</strong>：工具描述不清、MCP server 权限过大、Skill 未隔离，会扩大攻击面。</li><li><strong>状态污染</strong>：长期记忆、项目规则、Skill 文档被污染后，会影响后续所有会话。</li><li><strong>供应链风险</strong>：社区 Skill、插件、MCP server、自动安装脚本都可能成为入口。</li><li><strong>不可审计执行</strong>：没有 trace、日志、checkpoint、审批记录时，出错后无法定位责任链。</li></ol><p>最低限度的工程基线应包括：</p><ul><li>Agent 只拿完成任务所需的最小权限。</li><li>高风险工具默认需要人工审批。</li><li>所有外部输入进入 Agent 前标记为 untrusted。</li><li>工具调用、文件修改、网络访问、密钥读取必须有日志。</li><li>关键工作流必须有测试、回滚和人工 review。</li><li>不把密钥、cookie、生产数据库写权限直接暴露给通用 Agent。</li></ul><h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>AI Agent 框架的竞争重点正在从“谁能调用更多工具”转向“谁能给 Agent 一个更可靠的工作环境”。从这个角度看：</p><ul><li><strong>Claude Code / Codex</strong> 代表成熟 coding harness。</li><li><strong>OpenClaw / AgentOS</strong> 代表本地 Agent OS 和个人工作入口。</li><li><strong>LangGraph / Microsoft Agent Framework</strong> 代表生产级状态编排。</li><li><strong>Harness Agents</strong> 代表企业 DevOps 控制面里的 Agent。</li><li><strong>OpenAI Agents SDK / CrewAI</strong> 代表较容易落地的应用开发框架。</li><li><strong>Harness Engineering</strong> 则是贯穿所有路线的底层方法论。</li></ul><p>未来真正有价值的 Agent 系统不会只是“更聪明的模型”，而是由模型、工具、状态、权限、评测、审计和人类判断共同组成的工程系统。对开发者来说，最重要的能力也会从写一次性 prompt，转向设计能让 Agent 持续正确工作的环境。</p><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul><li><a href="https://docs.openclaw.ai/">OpenClaw Docs</a></li><li><a href="https://github.com/openclaw/openclaw">OpenClaw GitHub</a></li><li><a href="https://agentos.to/">AgentOS Docs</a></li><li><a href="https://agentos.to/architecture/overview/">AgentOS Architecture Overview</a></li><li><a href="https://code.claude.com/docs/en/overview">Claude Code Docs</a></li><li><a href="https://code.claude.com/docs/en/agent-sdk/claude-code-features">Claude Code Agent SDK Features</a></li><li><a href="https://developer.harness.io/docs/platform/harness-ai/harness-agents/">Harness Worker Agents</a></li><li><a href="https://mitchellh.com/writing/my-ai-adoption-journey">Mitchell Hashimoto: My AI Adoption Journey</a></li><li><a href="https://openai.com/index/harness-engineering/">OpenAI: Harness engineering, leveraging Codex in an agent-first world</a></li><li><a href="https://openai.github.io/openai-agents-python/agents/">OpenAI Agents SDK</a></li><li><a href="https://docs.langchain.com/langgraph">LangGraph Overview</a></li><li><a href="https://docs.langchain.com/oss/python/langgraph/durable-execution">LangGraph Durable Execution</a></li><li><a href="https://docs.crewai.com/en">CrewAI Docs</a></li><li><a href="https://learn.microsoft.com/en-us/agent-framework/overview/">Microsoft Agent Framework Overview</a></li><li><a href="https://github.com/OpenHands/OpenHands">OpenHands GitHub</a></li></ul>]]></content>
+    
+    
+    <categories>
+      
+      <category>Artificial Intelligence</category>
+      
+      <category>Agent</category>
+      
+      <category>Software Engineering</category>
+      
+      <category>AI Coding</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>AI Agent</tag>
+      
+      <tag>Agent Framework</tag>
+      
+      <tag>OpenClaw</tag>
+      
+      <tag>AgentOS</tag>
+      
+      <tag>Claude Code</tag>
+      
+      <tag>Harness Engineering</tag>
+      
+      <tag>LangGraph</tag>
+      
+      <tag>CrewAI</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>逐飞DL1B TOF问题排查记录</title>
     <link href="/2026/05/24/%E9%80%90%E9%A3%9EDL1B-TOF%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/"/>
     <url>/2026/05/24/%E9%80%90%E9%A3%9EDL1B-TOF%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/</url>
@@ -202,11 +247,11 @@
       
       <tag>FPGA</tag>
       
+      <tag>Litex</tag>
+      
       <tag>Nexys4ddr</tag>
       
       <tag>Genesys2</tag>
-      
-      <tag>Litex</tag>
       
     </tags>
     
@@ -296,9 +341,9 @@
       
       <category>RISC-V</category>
       
-      <category>CVA6</category>
-      
       <category>VMware</category>
+      
+      <category>CVA6</category>
       
       <category>Ubuntu</category>
       
@@ -440,9 +485,9 @@
       
       <category>Microarchitecture Security</category>
       
-      <category>RISC-V</category>
-      
       <category>Branch Prediction</category>
+      
+      <category>RISC-V</category>
       
       <category>CVA6</category>
       
@@ -451,6 +496,10 @@
     
     <tags>
       
+      <tag>RISC-V</tag>
+      
+      <tag>CVA6</tag>
+      
       <tag>Branch Prediction</tag>
       
       <tag>Attack Modeling</tag>
@@ -458,10 +507,6 @@
       <tag>Side-channel Attack</tag>
       
       <tag>Microarchitecture Security</tag>
-      
-      <tag>RISC-V</tag>
-      
-      <tag>CVA6</tag>
       
     </tags>
     

@@ -1,0 +1,1213 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/milkcat.png">
+  <link rel="icon" href="/img/milkcat.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="HUANGDAN">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="AI Agent 框架调研与分析报告摘要2026 年的 AI Agent 生态已经不再只是“给 LLM 加工具调用”。更准确的划分应该是：  Agent SDK：面向业务应用开发，提供 Agent、Tool、Guardrail、Handoff、Tracing 等基础抽象。 Agent 编排运行时：把多步骤、多 Agent、长任务、人类审批、失败恢复抽象成图或工作流。 本地 Agent OS &#x2F; G">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI Agent 框架调研与分析报告">
+<meta property="og:url" content="http://ruak.github.io/2026/05/24/AI-Agent-%E6%A1%86%E6%9E%B6%E8%B0%83%E7%A0%94%E4%B8%8E%E5%88%86%E6%9E%90%E6%8A%A5%E5%91%8A/index.html">
+<meta property="og:site_name" content="HUANGDAN">
+<meta property="og:description" content="AI Agent 框架调研与分析报告摘要2026 年的 AI Agent 生态已经不再只是“给 LLM 加工具调用”。更准确的划分应该是：  Agent SDK：面向业务应用开发，提供 Agent、Tool、Guardrail、Handoff、Tracing 等基础抽象。 Agent 编排运行时：把多步骤、多 Agent、长任务、人类审批、失败恢复抽象成图或工作流。 本地 Agent OS &#x2F; G">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-24T14:52:00.000Z">
+<meta property="article:modified_time" content="2026-05-24T14:56:01.867Z">
+<meta property="article:author" content="HUANGDAN">
+<meta property="article:tag" content="AI Agent">
+<meta property="article:tag" content="Agent Framework">
+<meta property="article:tag" content="AgentOS">
+<meta property="article:tag" content="Claude Code">
+<meta property="article:tag" content="CrewAI">
+<meta property="article:tag" content="Harness Engineering">
+<meta property="article:tag" content="LangGraph">
+<meta property="article:tag" content="OpenClaw">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>AI Agent 框架调研与分析报告 - HUANGDAN</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ruak.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":50,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"><style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>HUANGDAN</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true data-random-banner='/img/random/bochi.png,/img/random/ChainsawMan.png,/img/random/charlotte.png,/img/random/denmension.png,/img/random/future.png,/img/random/pink.png,/img/random/purple.png,/img/random/rose.png,/img/random/short.png,/img/random/SNAFFUR.png,/img/random/thick.png,/img/random/white.png'
+     style="background: url('/img/random/bochi.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="AI Agent 框架调研与分析报告"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        HUANGDAN
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-05-24 22:52" pubdate>
+          2026年5月24日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          33 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+
+  <script>
+    (function() {
+      var banner = document.getElementById('banner');
+      if (!banner) return;
+      var list = banner.getAttribute('data-random-banner');
+      if (!list) return;
+      list = list.split(',').filter(Boolean);
+      if (list.length === 0) return;
+      var pick = list[Math.floor(Math.random() * list.length)];
+      banner.style.backgroundImage = "url('" + pick + "')";
+    })();
+  </script>
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">AI Agent 框架调研与分析报告</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="AI-Agent-框架调研与分析报告"><a href="#AI-Agent-框架调研与分析报告" class="headerlink" title="AI Agent 框架调研与分析报告"></a>AI Agent 框架调研与分析报告</h1><h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>2026 年的 AI Agent 生态已经不再只是“给 LLM 加工具调用”。更准确的划分应该是：</p>
+<ul>
+<li><strong>Agent SDK</strong>：面向业务应用开发，提供 Agent、Tool、Guardrail、Handoff、Tracing 等基础抽象。</li>
+<li><strong>Agent 编排运行时</strong>：把多步骤、多 Agent、长任务、人类审批、失败恢复抽象成图或工作流。</li>
+<li><strong>本地 Agent OS / Gateway</strong>：把 Agent 放到用户真实工作环境里，连接消息、文件、系统工具、MCP、长期记忆。</li>
+<li><strong>AI Coding Agent 产品</strong>：面向软件工程任务，内置代码库读取、文件编辑、命令执行、PR/CI/CD 等能力。</li>
+<li><strong>Harness Engineering</strong>：不是单个框架，而是围绕 Agent 构建上下文、工具、验证、权限和反馈回路的工程方法论。</li>
+</ul>
+<p>核心结论是：<strong>模型能力正在趋同，真正拉开差距的是 Agent 周围的运行环境</strong>。Claude Code、Codex、OpenClaw 这类工具证明了“可执行环境 + 项目知识 + 审批与回滚 + 持续验证”比单次提示词更重要；LangGraph、Microsoft Agent Framework、Harness Agents 则说明生产环境更关心状态持久化、权限、审计和可恢复执行。</p>
+<h2 id="分析口径"><a href="#分析口径" class="headerlink" title="分析口径"></a>分析口径</h2><p>本文把“AI 框架”按工程边界拆开，而不是按热度排序。原因是不同项目解决的问题不同：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>代表</th>
+<th>核心问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SDK / 库</td>
+<td>OpenAI Agents SDK、Microsoft Agent Framework</td>
+<td>如何在应用内构建可控 Agent</td>
+</tr>
+<tr>
+<td>编排运行时</td>
+<td>LangGraph、CrewAI Flows</td>
+<td>如何表达长流程、多节点、状态和恢复</td>
+</tr>
+<tr>
+<td>本地 Agent OS</td>
+<td>OpenClaw、AgentOS</td>
+<td>如何让 Agent 操作个人环境和跨应用数据</td>
+</tr>
+<tr>
+<td>编码代理产品</td>
+<td>Claude Code、Codex、OpenHands</td>
+<td>如何让 Agent 读写代码、运行命令、交付 PR</td>
+</tr>
+<tr>
+<td>工程方法论</td>
+<td>Harness Engineering</td>
+<td>如何让 Agent 可靠、可审计、可迭代</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>因此，Claude Code 不应直接和 LangGraph 比“谁更强”；前者是带有完整执行面的产品，后者是构建 Agent 系统的编排底座。</p>
+<h2 id="生态趋势"><a href="#生态趋势" class="headerlink" title="生态趋势"></a>生态趋势</h2><h3 id="从-Prompt-Engineering-到-Harness-Engineering"><a href="#从-Prompt-Engineering-到-Harness-Engineering" class="headerlink" title="从 Prompt Engineering 到 Harness Engineering"></a>从 Prompt Engineering 到 Harness Engineering</h3><p>Mitchell Hashimoto 在 2026 年 2 月的文章中把这一类实践称为 <strong>Harness Engineering</strong>：当 Agent 犯错时，不只是修改提示词，而是改造它所处的环境，让同类错误不再发生。这个环境包括 <code>AGENTS.md</code> / <code>CLAUDE.md</code>、脚本、测试、截图工具、权限规则、验证器和回滚机制。</p>
+<p>OpenAI 随后在 Codex 实验报告中给出了更激进的例子：团队用 Codex 构建一个约百万行代码的内部产品，并明确指出工程师的工作从“手写代码”转向“设计环境、表达意图、构建反馈回路”。这说明 Agent 系统的瓶颈正在从“模型能不能写代码”转向“系统能不能定义正确的完成标准”。</p>
+<h3 id="Agent-开始需要“操作系统化”"><a href="#Agent-开始需要“操作系统化”" class="headerlink" title="Agent 开始需要“操作系统化”"></a>Agent 开始需要“操作系统化”</h3><p>OpenClaw 和 AgentOS 代表另一条路线：不是把 Agent 嵌入单个 App，而是给 Agent 一个本地控制面。它们关心的问题包括：</p>
+<ul>
+<li>如何统一消息入口、文件、浏览器、系统工具和外部服务。</li>
+<li>如何维护长期记忆和跨应用实体关系。</li>
+<li>如何把不同工具能力以 MCP、Skill、Capability 等形式暴露给 Agent。</li>
+<li>如何在本地优先的前提下处理权限、密钥、沙箱和审计。</li>
+</ul>
+<p>这类项目的风险也更高，因为 Agent 不再只是“回答问题”，而是继承了用户机器和账号的真实权限。</p>
+<h3 id="生产系统重视确定性和可恢复性"><a href="#生产系统重视确定性和可恢复性" class="headerlink" title="生产系统重视确定性和可恢复性"></a>生产系统重视确定性和可恢复性</h3><p>LangGraph、Microsoft Agent Framework、Harness Agents 的共同点是把 Agent 放进更传统的软件工程控制面：</p>
+<ul>
+<li>每一步有状态。</li>
+<li>关键动作可审批。</li>
+<li>执行过程可追踪。</li>
+<li>失败后可恢复或重放。</li>
+<li>权限和密钥不直接暴露给模型。</li>
+</ul>
+<p>这类能力在 Demo 中不显眼，但在生产环境里比“多 Agent 对话”本身更重要。</p>
+<h2 id="代表框架与项目分析"><a href="#代表框架与项目分析" class="headerlink" title="代表框架与项目分析"></a>代表框架与项目分析</h2><h3 id="OpenClaw"><a href="#OpenClaw" class="headerlink" title="OpenClaw"></a>OpenClaw</h3><p><a target="_blank" rel="noopener" href="https://docs.openclaw.ai/">OpenClaw</a> 是一个自托管的 AI Agent Gateway。官方文档把它描述为连接 Discord、Slack、Telegram、WhatsApp、Signal、iMessage、Teams 等多种消息渠道与 AI coding agents 的本地 Gateway。它的 GitHub README 也强调“运行在你自己的设备上”，以 Gateway 作为会话、渠道、工具和事件的控制面。</p>
+<p>它的核心价值在于：</p>
+<ol>
+<li><strong>入口统一</strong>：用户可以从常用聊天工具发起任务，而不是打开单独的 Agent UI。</li>
+<li><strong>本地优先</strong>：会话、配置、工具执行尽量留在用户自己的机器或服务器上。</li>
+<li><strong>多 Agent 路由</strong>：不同 sender、channel、workspace 可以路由到隔离的 Agent 会话。</li>
+<li><strong>技能和工具生态</strong>：通过 Skills、工具和插件扩展 Agent 能力。</li>
+</ol>
+<p>主要风险也很明确。OpenClaw 连接真实聊天入口和本地工具，如果默认权限过宽，外部消息、群聊内容、插件或 Skill 都可能成为提示注入和越权执行入口。它更适合有运维和安全意识的个人开发者、研究者、小团队，而不是直接无防护地放进企业内网。</p>
+<h3 id="AgentOS"><a href="#AgentOS" class="headerlink" title="AgentOS"></a>AgentOS</h3><p><a target="_blank" rel="noopener" href="https://agentos.to/">AgentOS</a> 把自己定位为“local operating system for human-AI collaboration”。它不是简单的聊天工具，而是试图为 Agent 提供一个本地知识图谱、能力代理和工具面。</p>
+<p>从架构文档看，AgentOS 的核心组件包括：</p>
+<ul>
+<li><strong>Rust engine</strong>：负责运行图、执行 skills、解析认证、通过 MCP 暴露给 Claude Code、Cursor 等客户端。</li>
+<li><strong>SQLite memex graph</strong>：以 <code>~/.agentos/data/agentos.db</code> 存储节点、边和值，作为个人知识图谱。</li>
+<li><strong>Python skills</strong>：连接外部服务或提供纯 Agent 工具，通过 <code>@provides(...)</code> 声明能力。</li>
+<li><strong>Capability broker</strong>：应用只请求能力，Skill 只声明能力，双方不直接互相依赖。</li>
+<li><strong>MCP interface</strong>：让支持 MCP 的 Agent 客户端把 AgentOS 当作工具面使用。</li>
+</ul>
+<p>AgentOS 的设计亮点是“实体图谱 + 能力代理”。它适合构建长期个人工作记忆，例如跨消息、任务、日历、文档的统一查询。短板是生态仍处于早期，价值依赖大量高质量 Skill 和 Shape 建模，否则容易停留在架构愿景层面。</p>
+<h3 id="Claude-Code"><a href="#Claude-Code" class="headerlink" title="Claude Code"></a>Claude Code</h3><p><a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/overview">Claude Code</a> 是 Anthropic 的 agentic coding tool，运行在 terminal、IDE、desktop app 和 web 等多个界面。它能读取代码库、编辑文件、运行命令，并与开发工具集成。</p>
+<p>Claude Code 的优势在于产品化程度高：</p>
+<ul>
+<li><code>CLAUDE.md</code> 和 rules 能把项目约定写入 Agent 上下文。</li>
+<li>MCP 能连接 Google Drive、Jira、Slack 或自定义工具。</li>
+<li>Skills 可以封装团队可复用流程。</li>
+<li>Hooks 能在工具调用前后执行命令、HTTP、MCP tool、prompt 或 verifier agent。</li>
+<li>Subagents 和 agent teams 支持隔离上下文或多实例协作。</li>
+<li>CLI 可以进入 CI/CD、脚本和管道。</li>
+</ul>
+<p>Claude Code 的本质不是通用 Agent SDK，而是“软件工程场景的完整 harness”。它适合真实代码库中的增量开发、测试修复、重构、PR 生成和代码审查。它的限制是供应商绑定较强，运行质量高度依赖项目说明、测试体系、权限配置和人工 review。</p>
+<h3 id="Harness-Agents"><a href="#Harness-Agents" class="headerlink" title="Harness Agents"></a>Harness Agents</h3><p><a target="_blank" rel="noopener" href="https://developer.harness.io/docs/platform/harness-ai/harness-agents/">Harness Worker Agents</a> 是企业 DevOps 平台中的 Agent 形态。它们不是独立聊天机器人，而是运行在 Harness pipeline 内的 AI-powered automation units。</p>
+<p>其关键特点是：</p>
+<ul>
+<li>Agent 是 pipeline step，可嵌入 CI、CD、IaCM、STO、SCS 或 Custom stage。</li>
+<li>每个 Worker Agent 由 Instructions、Model Connector、MCP Server、inputs、environment variables 组成。</li>
+<li>继承 Harness 的 secrets、RBAC、pipeline context、trigger 和审计能力。</li>
+<li>Marketplace 提供代码审查、Autofix、Manifest 修复、IaC 安全检查等模板。</li>
+<li>输出变量可传给后续 pipeline step，用于审批、条件判断和通知。</li>
+</ul>
+<p>这类 Agent 的工程意义很强：它把 AI 自动化放进已有交付控制面，而不是另起一个无法审计的外部机器人。适合企业 DevOps、平台工程、安全修复、CI 失败分析等场景。</p>
+<h3 id="OpenAI-Agents-SDK"><a href="#OpenAI-Agents-SDK" class="headerlink" title="OpenAI Agents SDK"></a>OpenAI Agents SDK</h3><p><a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/agents/">OpenAI Agents SDK</a> 的核心抽象是 <code>Agent</code> 和 <code>Runner</code>，用于管理 turns、tools、guardrails、handoffs 和 sessions。它更像一个应用开发 SDK，而不是一个完整产品。</p>
+<p>它适合：</p>
+<ul>
+<li>在客服、运营、数据分析等业务应用中嵌入 Agent。</li>
+<li>用 handoffs 把任务委托给不同专业 Agent。</li>
+<li>用 guardrails 对输入、输出和工具调用做检查。</li>
+<li>用 tracing 观察 LLM generation、tool call、handoff、guardrail 和自定义事件。</li>
+</ul>
+<p>如果目标是做一个可控的业务 Agent 服务，Agents SDK 比直接裸调模型 API 更合适。但如果任务需要复杂图状态、长时间挂起和恢复，通常还要搭配工作流引擎或持久化层。</p>
+<h3 id="LangGraph"><a href="#LangGraph" class="headerlink" title="LangGraph"></a>LangGraph</h3><p><a target="_blank" rel="noopener" href="https://docs.langchain.com/langgraph">LangGraph</a> 是低层级的 Agent 编排框架和运行时，重点不在“自动帮你写 prompt”，而在长期、有状态、多节点的执行。</p>
+<p>它的关键能力包括：</p>
+<ul>
+<li>图结构表达 Agent / function / tool 的控制流。</li>
+<li>checkpoint 持久化状态。</li>
+<li>durable execution 支持中断后恢复。</li>
+<li>human-in-the-loop 可以在任意节点暂停、审批、修改状态后继续。</li>
+<li>与 LangSmith 等观测工具结合，方便调试复杂执行路径。</li>
+</ul>
+<p>LangGraph 适合构建严肃生产 Agent：例如审批流、研究流、客服升级流、数据处理流、需要恢复的长任务。代价是抽象偏底层，工程团队需要自己设计状态、节点、边和错误处理。</p>
+<h3 id="CrewAI"><a href="#CrewAI" class="headerlink" title="CrewAI"></a>CrewAI</h3><p><a target="_blank" rel="noopener" href="https://docs.crewai.com/en">CrewAI</a> 主打 collaborative agents、crews 和 flows。Crews 适合角色分工式任务，Flows 则用于更确定的事件驱动工作流。</p>
+<p>它的优势是上手快，抽象贴近“团队协作”：</p>
+<ul>
+<li>Agent 有角色、目标、工具、记忆、知识和结构化输出。</li>
+<li>Crew 负责多个 Agent 协作完成任务。</li>
+<li>Flow 提供更可控的步骤、状态、持久化和恢复。</li>
+<li>Enterprise 版本提供部署、触发器、RBAC、监控等平台能力。</li>
+</ul>
+<p>CrewAI 适合原型、自动化任务和中等复杂度的多 Agent 应用。若系统需要强一致状态、复杂审批、严格权限和细粒度重放，LangGraph 或 Microsoft Agent Framework 的确定性控制会更合适。</p>
+<h3 id="Microsoft-Agent-Framework"><a href="#Microsoft-Agent-Framework" class="headerlink" title="Microsoft Agent Framework"></a>Microsoft Agent Framework</h3><p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/agent-framework/overview/">Microsoft Agent Framework</a> 是 Microsoft 将 AutoGen 的多 Agent 抽象和 Semantic Kernel 的企业能力合并后的下一代框架，支持 Python 和 .NET。</p>
+<p>它的定位偏企业应用开发：</p>
+<ul>
+<li>Agents 负责 LLM 输入处理、工具调用、MCP server 和响应生成。</li>
+<li>Workflows 提供图式工作流、类型安全路由、checkpoint 和 human-in-the-loop。</li>
+<li>支持 Foundry、Anthropic、Azure OpenAI、OpenAI、Ollama 等 provider。</li>
+<li>提供 session state、context provider、middleware、telemetry、MCP clients。</li>
+</ul>
+<p>如果团队在 Azure、.NET、Microsoft Foundry 或 Copilot 生态内，Microsoft Agent Framework 是非常自然的选择。它的优势不是最轻量，而是企业集成、类型系统、可观测性和长期维护路径。</p>
+<h3 id="OpenHands"><a href="#OpenHands" class="headerlink" title="OpenHands"></a>OpenHands</h3><p><a target="_blank" rel="noopener" href="https://github.com/OpenHands/OpenHands">OpenHands</a> 是开源的软件开发 Agent 平台，前身是 OpenDevin。它可以让 Agent 像开发者一样写代码、操作命令行、浏览网页、调用 API，并提供 CLI、本地 GUI、云服务和 Software Agent SDK。</p>
+<p>OpenHands 的价值在于开放和可定制：</p>
+<ul>
+<li>适合研究软件工程 Agent 的执行环境、沙箱、轨迹和评测。</li>
+<li>适合希望自托管 coding agent 的团队。</li>
+<li>相比 Claude Code / Codex 这类闭源产品，更容易做底层改造和安全审计。</li>
+</ul>
+<p>它的问题是生产体验通常不如商业产品顺滑，团队需要自行承担模型选择、沙箱、凭证、成本、质量和部署维护。</p>
+<h2 id="横向对比"><a href="#横向对比" class="headerlink" title="横向对比"></a>横向对比</h2><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>类型</th>
+<th>最强能力</th>
+<th>主要短板</th>
+<th>适合场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenClaw</td>
+<td>本地 Gateway / Personal Agent</td>
+<td>多消息渠道、本地优先、多 Agent 路由</td>
+<td>权限与提示注入风险高，生态仍在快速变化</td>
+<td>个人助理、跨聊天工具自动化、本地 Agent 实验</td>
+</tr>
+<tr>
+<td>AgentOS</td>
+<td>本地 Agent OS</td>
+<td>SQLite memex graph、Capability broker、MCP 工具面</td>
+<td>价值依赖 Skill/Shape 生态成熟度</td>
+<td>个人知识图谱、长期记忆、跨应用上下文</td>
+</tr>
+<tr>
+<td>Claude Code</td>
+<td>编码代理产品</td>
+<td>代码库操作、命令执行、Hooks、Skills、Subagents</td>
+<td>供应商绑定，需强测试和 review</td>
+<td>日常开发、重构、测试修复、PR 自动化</td>
+</tr>
+<tr>
+<td>Harness Agents</td>
+<td>DevOps Agent 平台</td>
+<td>Pipeline-native、RBAC、Secrets、审计、触发器</td>
+<td>依赖 Harness 平台</td>
+<td>企业 CI/CD、DevOps、安全修复、IaC 审查</td>
+</tr>
+<tr>
+<td>OpenAI Agents SDK</td>
+<td>Agent SDK</td>
+<td>Handoffs、Guardrails、Tracing、业务嵌入</td>
+<td>长流程状态需额外设计</td>
+<td>客服、运营、业务 Agent、工具调用应用</td>
+</tr>
+<tr>
+<td>LangGraph</td>
+<td>编排运行时</td>
+<td>图编排、持久化、恢复、HITL</td>
+<td>抽象偏底层，上手成本较高</td>
+<td>生产级长任务、多步骤审批、复杂状态机</td>
+</tr>
+<tr>
+<td>CrewAI</td>
+<td>多 Agent 框架</td>
+<td>Crews + Flows，上手快</td>
+<td>强控制和审计能力需额外补充</td>
+<td>原型、多角色协作、自动化流程</td>
+</tr>
+<tr>
+<td>Microsoft Agent Framework</td>
+<td>企业 Agent 框架</td>
+<td>.NET/Python、workflow、type safety、telemetry</td>
+<td>生态偏 Microsoft，框架较重</td>
+<td>Azure / .NET 企业 Agent 应用</td>
+</tr>
+<tr>
+<td>OpenHands</td>
+<td>开源 coding agent 平台</td>
+<td>开放、可自托管、软件开发 Agent SDK</td>
+<td>产品体验和运维成本较高</td>
+<td>Coding agent 研究、自托管开发代理</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="技术选型建议"><a href="#技术选型建议" class="headerlink" title="技术选型建议"></a>技术选型建议</h2><h3 id="个人开发者"><a href="#个人开发者" class="headerlink" title="个人开发者"></a>个人开发者</h3><p>如果目标是提高日常编码效率，优先选 <strong>Claude Code / Codex / OpenHands</strong> 这类 coding agent，而不是先从 LangGraph 搭底层框架。真正能提升效率的是：</p>
+<ol>
+<li>写好 <code>AGENTS.md</code> / <code>CLAUDE.md</code>。</li>
+<li>保证项目有可运行测试、lint、format 和截图验证工具。</li>
+<li>把常见错误沉淀成脚本、hook、rule 或 skill。</li>
+<li>限制 Agent 权限，避免直接放开危险命令。</li>
+</ol>
+<h3 id="企业-DevOps-平台工程"><a href="#企业-DevOps-平台工程" class="headerlink" title="企业 DevOps / 平台工程"></a>企业 DevOps / 平台工程</h3><p>如果团队已有 Harness，<strong>Harness Agents</strong> 的 pipeline-native 模式最值得关注。它避免了“外部 AI bot 持有一堆 token 后到处执行”的治理问题，把 Agent 放进已有 RBAC、Secrets、审计和审批流里。</p>
+<p>如果团队在 Azure / .NET 生态，<strong>Microsoft Agent Framework</strong> 更适合做可维护的企业 Agent 应用。</p>
+<h3 id="复杂业务-Agent"><a href="#复杂业务-Agent" class="headerlink" title="复杂业务 Agent"></a>复杂业务 Agent</h3><p>需要明确状态机、审批、重试和恢复时，优先考虑 <strong>LangGraph</strong> 或 <strong>Microsoft Agent Framework Workflows</strong>。不要用一串 prompt 和回调硬拼长期任务，否则后期很难排查失败位置。</p>
+<h3 id="个人知识管理-本地-AI-OS"><a href="#个人知识管理-本地-AI-OS" class="headerlink" title="个人知识管理 / 本地 AI OS"></a>个人知识管理 / 本地 AI OS</h3><p>如果关注“Agent 能否理解我的所有工作上下文”，可以关注 <strong>AgentOS</strong>。它的 memex graph 思路比传统 RAG 更系统：数据不是一堆文档 chunk，而是人、任务、消息、事件、文档之间的关系。</p>
+<p>如果关注“从任何聊天入口调度个人 Agent”，可以关注 <strong>OpenClaw</strong>。但必须先处理安全边界：白名单、沙箱、权限分级、日志、远程暴露策略和插件供应链。</p>
+<h2 id="风险与安全问题"><a href="#风险与安全问题" class="headerlink" title="风险与安全问题"></a>风险与安全问题</h2><p>AI Agent 框架的主要风险不是“回答错了”，而是“带着真实权限错误地行动”。需要重点关注：</p>
+<ol>
+<li><strong>提示注入</strong>：邮件、网页、聊天消息、Issue、PR 评论都可能诱导 Agent 泄露数据或执行危险动作。</li>
+<li><strong>权限继承</strong>：本地 Agent 往往继承用户账号、shell、浏览器、云服务 token 的权限。</li>
+<li><strong>工具越权</strong>：工具描述不清、MCP server 权限过大、Skill 未隔离，会扩大攻击面。</li>
+<li><strong>状态污染</strong>：长期记忆、项目规则、Skill 文档被污染后，会影响后续所有会话。</li>
+<li><strong>供应链风险</strong>：社区 Skill、插件、MCP server、自动安装脚本都可能成为入口。</li>
+<li><strong>不可审计执行</strong>：没有 trace、日志、checkpoint、审批记录时，出错后无法定位责任链。</li>
+</ol>
+<p>最低限度的工程基线应包括：</p>
+<ul>
+<li>Agent 只拿完成任务所需的最小权限。</li>
+<li>高风险工具默认需要人工审批。</li>
+<li>所有外部输入进入 Agent 前标记为 untrusted。</li>
+<li>工具调用、文件修改、网络访问、密钥读取必须有日志。</li>
+<li>关键工作流必须有测试、回滚和人工 review。</li>
+<li>不把密钥、cookie、生产数据库写权限直接暴露给通用 Agent。</li>
+</ul>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>AI Agent 框架的竞争重点正在从“谁能调用更多工具”转向“谁能给 Agent 一个更可靠的工作环境”。从这个角度看：</p>
+<ul>
+<li><strong>Claude Code / Codex</strong> 代表成熟 coding harness。</li>
+<li><strong>OpenClaw / AgentOS</strong> 代表本地 Agent OS 和个人工作入口。</li>
+<li><strong>LangGraph / Microsoft Agent Framework</strong> 代表生产级状态编排。</li>
+<li><strong>Harness Agents</strong> 代表企业 DevOps 控制面里的 Agent。</li>
+<li><strong>OpenAI Agents SDK / CrewAI</strong> 代表较容易落地的应用开发框架。</li>
+<li><strong>Harness Engineering</strong> 则是贯穿所有路线的底层方法论。</li>
+</ul>
+<p>未来真正有价值的 Agent 系统不会只是“更聪明的模型”，而是由模型、工具、状态、权限、评测、审计和人类判断共同组成的工程系统。对开发者来说，最重要的能力也会从写一次性 prompt，转向设计能让 Agent 持续正确工作的环境。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.openclaw.ai/">OpenClaw Docs</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/openclaw/openclaw">OpenClaw GitHub</a></li>
+<li><a target="_blank" rel="noopener" href="https://agentos.to/">AgentOS Docs</a></li>
+<li><a target="_blank" rel="noopener" href="https://agentos.to/architecture/overview/">AgentOS Architecture Overview</a></li>
+<li><a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/overview">Claude Code Docs</a></li>
+<li><a target="_blank" rel="noopener" href="https://code.claude.com/docs/en/agent-sdk/claude-code-features">Claude Code Agent SDK Features</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.harness.io/docs/platform/harness-ai/harness-agents/">Harness Worker Agents</a></li>
+<li><a target="_blank" rel="noopener" href="https://mitchellh.com/writing/my-ai-adoption-journey">Mitchell Hashimoto: My AI Adoption Journey</a></li>
+<li><a target="_blank" rel="noopener" href="https://openai.com/index/harness-engineering/">OpenAI: Harness engineering, leveraging Codex in an agent-first world</a></li>
+<li><a target="_blank" rel="noopener" href="https://openai.github.io/openai-agents-python/agents/">OpenAI Agents SDK</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.langchain.com/langgraph">LangGraph Overview</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.langchain.com/oss/python/langgraph/durable-execution">LangGraph Durable Execution</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.crewai.com/en">CrewAI Docs</a></li>
+<li><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/agent-framework/overview/">Microsoft Agent Framework Overview</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/OpenHands/OpenHands">OpenHands GitHub</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Artificial-Intelligence/" class="category-chain-item">Artificial Intelligence</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Artificial-Intelligence/Agent/" class="category-chain-item">Agent</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Software-Engineering/" class="category-chain-item">Software Engineering</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/Software-Engineering/AI-Coding/" class="category-chain-item">AI Coding</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/AI-Agent/" class="print-no-link">#AI Agent</a>
+      
+        <a href="/tags/Agent-Framework/" class="print-no-link">#Agent Framework</a>
+      
+        <a href="/tags/OpenClaw/" class="print-no-link">#OpenClaw</a>
+      
+        <a href="/tags/AgentOS/" class="print-no-link">#AgentOS</a>
+      
+        <a href="/tags/Claude-Code/" class="print-no-link">#Claude Code</a>
+      
+        <a href="/tags/Harness-Engineering/" class="print-no-link">#Harness Engineering</a>
+      
+        <a href="/tags/LangGraph/" class="print-no-link">#LangGraph</a>
+      
+        <a href="/tags/CrewAI/" class="print-no-link">#CrewAI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>AI Agent 框架调研与分析报告</div>
+      <div>http://ruak.github.io/2026/05/24/AI-Agent-框架调研与分析报告/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>HUANGDAN</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年5月24日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/05/24/%E9%80%90%E9%A3%9EDL1B-TOF%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E8%AE%B0%E5%BD%95/" title="逐飞DL1B TOF问题排查记录">
+                        <span class="hidden-mobile">逐飞DL1B TOF问题排查记录</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#gitalk-container', function() {
+      Fluid.utils.createCssLink('/css/gitalk.css')
+      Fluid.utils.createScript('https://lib.baomitu.com/gitalk/1.8.0/gitalk.min.js', function() {
+        var options = Object.assign(
+          {"clientID":"Ov23liShVrg2q1cvgy8e","clientSecret":"c799aabf17670a714bab29a1ec1fde855622bcd6","repo":"hexo-fluid-gitalk","owner":"Ruak","admin":["Ruak"],"language":"zh-CN","labels":["Gitalk"],"perPage":10,"pagerDirection":"last","distractionFreeMode":false,"createIssueManually":true,"proxy":"https://vercel.prohibitorum.top/github_access_token"},
+          {
+            id: 'a96b3030cda9d43f4f8c46d352b8ef47'
+          }
+        )
+        var gitalk = new Gitalk(options);
+        gitalk.render('gitalk-container');
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      // 统一使用 ▶ 字符，通过旋转控制方向，避免不同字符导致的视觉比例不一致
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        // 没有子目录的条目也需要占位，保证缩进对齐
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">▶</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          // 统一使用 ▶ 字符，后续通过 CSS 旋转控制展开/折叠方向
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">▶</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
